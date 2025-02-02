@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,17 +80,24 @@ fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
                 text = "Show Screen"
             )
         }
-        NavigationBar(modifier = Modifier.align(alignment = Alignment.BottomCenter))
-        {
+        NavigationBar(modifier = Modifier.align(alignment = Alignment.BottomCenter),
+            containerColor = Color(0xFF98FF98)
+        ) {
             navigationItems.forEachIndexed { index, screen ->
                 NavigationBarItem(
-                    icon = { Icon(imageVector = screen.icon, contentDescription = null) },
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = screen.icon),
+                            contentDescription = null,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    },
                     label = { Text(text = screen.name) },
                     selected = (selectedScreen == index),
                     onClick = {
                         selectedScreen = index
                         navController.navigate(screen.route)
-                        Toast.makeText(contextForToast, screen.name, Toast.LENGTH_SHORT).show()
+
                     }
                 )
             }

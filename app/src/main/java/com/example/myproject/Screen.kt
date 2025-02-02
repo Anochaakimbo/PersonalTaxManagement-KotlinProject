@@ -12,10 +12,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
-sealed class Screen(val route :String,val name:String ,val icon: ImageVector) {
-    data object Home : Screen(route = "home_screen", name = "Home",icon = Icons.Default.Home)
-    data object Search : Screen(route = "search_screen", name = "Search",icon = Icons.Default.Search)
-    data object TaxAdd : Screen(route = "taxadd_screen", name = "TaxAdd",icon = Icons.Default.Add)
-    data object Notification : Screen(route = "notification", name = "Notification",icon = Icons.Default.Notifications)
-    data object Profile : Screen(route = "profile_screen", name = "Profile",icon = Icons.Default.Menu)
+sealed class Screen(val route :String,val name:String ,@DrawableRes val icon: Int) {
+    data object Home : Screen(route = "home_screen", name = "",icon = R.drawable.home)
+    data object Search : Screen(route = "search_screen", name = "",icon = R.drawable.analyzer)
+    data object TaxAdd : Screen(route = "taxadd_screen", name = "",icon = R.drawable.add)
+    data object Notification : Screen(route = "notification", name = "",icon = R.drawable.bell)
+    data object Profile : Screen(route = "profile_screen", name = "",icon = R.drawable.menu)
 }
