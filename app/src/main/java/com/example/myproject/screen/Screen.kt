@@ -1,16 +1,7 @@
-package com.example.myproject
+package com.example.myproject.screen
 
 import androidx.annotation.DrawableRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.myproject.R
 
 sealed class Screen(val route :String,val name:String ,@DrawableRes val icon: Int) {
     data object Home : Screen(route = "home_screen", name = "",icon = R.drawable.home)

@@ -1,4 +1,4 @@
-package com.example.myproject
+package com.example.myproject.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun NotificationScreen(){
+fun TaxAddScreen(){
     val contextForToast = LocalContext.current.applicationContext
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -21,11 +21,11 @@ fun NotificationScreen(){
         verticalArrangement = Arrangement.Center
     ){
         Text(
-            text = "Notification Screen"
+            text = "TaxAdd Screen"
         )
         Button(
             onClick = {
-                Toast.makeText(contextForToast,"Notification", Toast.LENGTH_SHORT).show()
+                Toast.makeText(contextForToast,"TaxAdd", Toast.LENGTH_SHORT).show()
             }){
             Text(text = "Click", fontSize = 25.sp)
         }

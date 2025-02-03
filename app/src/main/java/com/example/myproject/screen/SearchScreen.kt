@@ -1,4 +1,4 @@
-package com.example.myproject
+package com.example.myproject.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ProfileScreen(){
+fun SearchScreen(){
     val contextForToast = LocalContext.current.applicationContext
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -21,11 +21,11 @@ fun ProfileScreen(){
         verticalArrangement = Arrangement.Center
     ){
         Text(
-            text = "Profile Screen"
+            text = "Search Screen"
         )
         Button(
             onClick = {
-                Toast.makeText(contextForToast,"Profile", Toast.LENGTH_SHORT).show()
+                Toast.makeText(contextForToast,"Search", Toast.LENGTH_SHORT).show()
             }){
             Text(text = "Click", fontSize = 25.sp)
         }
