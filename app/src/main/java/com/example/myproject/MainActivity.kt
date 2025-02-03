@@ -2,7 +2,6 @@ package com.example.myproject
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,6 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.myproject.screen.NavGraph
+import com.example.myproject.screen.Screen
 import com.example.myproject.ui.theme.MyProjectTheme
 
 class MainActivity : ComponentActivity() {
@@ -80,9 +81,6 @@ fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Text(
-                text = "Show Screen"
-            )
         }
         NavigationBar(
             modifier = Modifier
@@ -132,6 +130,6 @@ fun MyScaffoldLayout(){
             modifier = Modifier.padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
         ){ }
-        NavGraph(navController = navController) // <- อันนี้ถูกต้องแล้ว
+        NavGraph(navController = navController)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.myproject
+package com.example.myproject.screen
 
 import androidx.compose.runtime.Composable
 
