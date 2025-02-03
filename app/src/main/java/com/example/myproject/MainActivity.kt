@@ -47,7 +47,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.myproject.screen.NavGraph
 import com.example.myproject.screen.Screen
-import com.example.myproject.screen.TaxAddScreen
+import com.example.myproject.screen.TaxButtomSheet
 import com.example.myproject.ui.theme.MyProjectTheme
 import kotlinx.coroutines.launch
 
@@ -143,11 +143,9 @@ fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
     }
 
     if (showBottomSheet) {
-        TaxAddScreen(onDismiss = { showBottomSheet = false })
+        TaxButtomSheet(onDismiss = { showBottomSheet = false })
     }
 }
-
-
 
 
 
