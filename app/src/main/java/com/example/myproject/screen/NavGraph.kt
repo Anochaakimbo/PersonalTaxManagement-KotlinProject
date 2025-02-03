@@ -24,11 +24,6 @@ fun NavGraph(navController: NavHostController){
             SearchScreen()
         }
         composable(
-            route = Screen.TaxAdd.route
-        ){
-            TaxAddScreen()
-        }
-        composable(
             route = Screen.Notification.route
         ){
             NotificationScreen()
