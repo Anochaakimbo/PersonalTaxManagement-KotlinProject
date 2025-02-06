@@ -27,6 +27,10 @@ android {
             )
         }
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.8"
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -61,4 +65,5 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(libs.androidx.material3)
+
 }
