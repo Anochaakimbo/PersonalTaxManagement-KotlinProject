@@ -1,4 +1,4 @@
-package com.example.myproject
+package com.example.myproject.screen
 
 import androidx.compose.runtime.Composable
 
@@ -22,11 +22,6 @@ fun NavGraph(navController: NavHostController){
             route = Screen.Search.route
         ){
             SearchScreen()
-        }
-        composable(
-            route = Screen.TaxAdd.route
-        ){
-            TaxAddScreen()
         }
         composable(
             route = Screen.Notification.route
