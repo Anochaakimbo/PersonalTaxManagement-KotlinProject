@@ -1,6 +1,7 @@
 package com.example.myproject.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,56 +35,79 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myproject.R
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavHostController
+import com.example.myproject.MyBottomBar
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) {
     val context = LocalContext.current.applicationContext
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF00C39A)), // สีพื้นหลังหลัก
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // ไอคอนด้านบน
-        Spacer(modifier = Modifier.height(32.dp))
-        IconSection()
-
-        // ส่วนเนื้อหาหลักที่มีพื้นหลังมุมโค้ง
+    Box(modifier = Modifier.fillMaxSize()) {
+        // พื้นหลังส่วนล่าง
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFE0F2F1), shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)) // พื้นหลังมุมโค้ง
-                .padding(16.dp)
+                .fillMaxWidth()
+                .fillMaxHeight(0.6f)
+                .align(Alignment.BottomCenter)
+                .background(Color.White, shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+        )
+
+        // การ์ดตรงกลาง
+        Box(
+            modifier = Modifier
+                .size(width = 300.dp, height = 250.dp)
+                .align(Alignment.Center)
+                .background(Color(0xFF00695C), shape = RoundedCornerShape(20.dp)),
+            contentAlignment = Alignment.Center
         ) {
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.money_transfer_test),
+//                    contentDescription = "Tax Icon",
+//                    modifier = Modifier.size(100.dp).padding(bottom = 8.dp),
+//                )
+                Text(text = "เริ่มคำนวณภาษี", color = Color.White, fontSize = 20.sp)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "แนะนำ", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                ContentSection {
-                    Toast.makeText(context, "เริ่มคำนวณภาษี", Toast.LENGTH_SHORT).show()
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "เริ่มคำนวณภาษี", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                    modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                ) {
+                    Text(text = "START", color = Color(0xFF00695C), fontSize = 16.sp)
                 }
             }
         }
-    }
-}
 
-@Composable
-fun IconSection() {
-    Box(
-        modifier = Modifier
-            .size(80.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        // สามารถเพิ่มไอคอนได้ที่นี่
+        // ส่วนพื้นหลังครีมด้านล่าง
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .align(Alignment.BottomCenter)
+                .padding(top = 10.dp)
+                .background(Color(0xFFF5F5DC), shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+        )
+
+        // Scaffold สำหรับ Bottom Navigation
+        Scaffold(bottomBar = { MyBottomBar(navController, context) }, containerColor = Color.Transparent) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(it),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {}
+        }
     }
 }
 
 @Composable
 fun ContentSection(onItemClick: () -> Unit) {
     Column {
-        // การ์ดแนะนำ
+        Text(text = "แนะนำ", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -103,7 +128,6 @@ fun ContentSection(onItemClick: () -> Unit) {
             Text(text = "ดูทั้งหมด >", color = Color.Blue, fontSize = 14.sp)
         }
 
-        // การ์ด Featured
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -147,5 +171,6 @@ fun TaxItem(title: String, showArrow: Boolean, onItemClick: () -> Unit) {
         }
     }
 }
+
 
 
