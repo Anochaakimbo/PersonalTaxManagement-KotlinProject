@@ -65,22 +65,6 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyProjectTheme {
-        Greeting("Android")
-    }
-}
-
-@Composable
 fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
     val navigationItems = listOf(
         Screen.Home,
