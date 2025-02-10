@@ -1,4 +1,4 @@
-package com.example.myproject.screen
+package com.example.myproject.mainscreen
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.myproject.MyBottomBar
 import com.example.myproject.R
 
 @Composable
@@ -89,7 +88,7 @@ fun HomeScreen(navController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp) // ปรับความสูงของกล่องสีครีม
+                .height(100.dp)
                 .align(Alignment.BottomCenter)
                 .padding(top = 10.dp)
                 .background(
