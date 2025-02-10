@@ -1,4 +1,4 @@
-package com.example.myproject.screen
+package com.example.myproject.mainscreen
 
 import androidx.compose.runtime.Composable
 
@@ -6,8 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
+
 @Composable
-fun NavGraph(navController: NavHostController){
+fun NavGraphForAfterLogin(navController: NavHostController){
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -33,6 +34,13 @@ fun NavGraph(navController: NavHostController){
         ){
             ProfileScreen()
         }
+
+        composable(
+            route = Screen.TaxAdd.route
+        ) {
+            TaxAddScreen(navController)
+        }
+
 
 
 

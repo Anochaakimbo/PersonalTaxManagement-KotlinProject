@@ -1,4 +1,4 @@
-package com.example.myproject.screen
+package com.example.myproject.mainscreen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-fun ProfileScreen(){
+fun TaxAddScreen(navController: NavHostController) {
     val contextForToast = LocalContext.current.applicationContext
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -21,11 +22,11 @@ fun ProfileScreen(){
         verticalArrangement = Arrangement.Center
     ){
         Text(
-            text = "Profile Screen"
+            text = "TaxAdd Screen"
         )
         Button(
             onClick = {
-                Toast.makeText(contextForToast,"Profile", Toast.LENGTH_SHORT).show()
+                Toast.makeText(contextForToast,"TaxAdd", Toast.LENGTH_SHORT).show()
             }){
             Text(text = "Click", fontSize = 25.sp)
         }
