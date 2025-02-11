@@ -22,9 +22,7 @@ fun TaxDeductionScreen(navController: NavHostController) {
 
     when (currentScreen) {
         "options_grid" -> OptionsGrid { selectedOption ->
-            if (selectedOption == "ประกันสังคม") {
-                currentScreen = "income_screen"
-            }
+            currentScreen = "income_screen" // เปลี่ยนหน้าตามที่เลือก
         }
         "income_screen" -> IncomeScreen { currentScreen = "options_grid" }
     }
@@ -44,7 +42,7 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 24.dp), // ปรับระยะขอบให้พอดี
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -53,13 +51,15 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp)) // เพิ่มระยะห่างให้ดูสวยขึ้น
 
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp) // เพิ่มช่องว่างระหว่างแถว
+        ) {
             items.chunked(2).forEach { rowItems ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.SpaceEvenly // กระจายปุ่มให้สมดุล
                 ) {
                     rowItems.forEach { (text, icon) ->
                         OptionCard(
@@ -69,7 +69,6 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -79,28 +78,30 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
 fun OptionCard(text: String, iconRes: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .aspectRatio(1f)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
+            .size(150.dp) // ปรับให้ปุ่มมีขนาดพอดี
+            .clickable { onClick() }
+            .padding(4.dp),
+        shape = RoundedCornerShape(16.dp), // ปรับให้โค้งมนมากขึ้น
+        elevation = CardDefaults.elevatedCardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(id = iconRes),
                 contentDescription = text,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(56.dp) // ปรับขนาดไอคอนให้พอดี
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
         }
@@ -112,9 +113,9 @@ fun IncomeScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(24.dp), // ปรับระยะให้ดูดีขึ้น
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Center // ทำให้ปุ่มอยู่ตรงกลางหน้าจอ
     ) {
         Text(
             text = "เงินเดือน และโบนัส",
@@ -137,14 +138,24 @@ fun IncomeScreen(onBack: () -> Unit) {
             fontSize = 40.sp,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = { onBack() },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            modifier = Modifier
+                .width(140.dp) // ปรับขนาดปุ่มให้พอดี
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp), // ทำให้มนมากขึ้น
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
         ) {
-            Text("กลับ", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
