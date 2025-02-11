@@ -16,7 +16,5 @@ fun AppNavGraph(navController: NavHostController) {
         composable("main") { MyScaffoldLayout() }
         composable("register") { RegisterScreen (navController)}
         composable("forgetpassword") { ForgetPassword (navController)}
-
-
     }
 }

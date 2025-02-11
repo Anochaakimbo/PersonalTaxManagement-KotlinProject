@@ -159,5 +159,3 @@ fun IncomeScreen(navController: NavHostController) {
         }
     }
 }
-
-
