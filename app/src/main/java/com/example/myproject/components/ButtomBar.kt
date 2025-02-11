@@ -89,6 +89,6 @@ fun MyBottomBar(navController: NavHostController) {
     }
 
     if (showBottomSheet) {
-        TaxButtomSheet(onDismiss = { showBottomSheet = false })
+        TaxButtomSheet(navController,onDismiss = { showBottomSheet = false })
     }
 }

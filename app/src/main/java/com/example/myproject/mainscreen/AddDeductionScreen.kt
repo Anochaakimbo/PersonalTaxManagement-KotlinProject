@@ -5,8 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -14,28 +13,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.myproject.R
 
 @Composable
-fun MyApp() {
-    val navController = rememberNavController() // ตัวควบคุม Navigation
+fun TaxDeductionScreen(navController: NavHostController) {
+    var currentScreen by remember { mutableStateOf("options_grid") }
 
-    NavHost(
-        navController = navController,
-        startDestination = "options_grid" // หน้าเริ่มต้น
-    ) {
-        composable("options_grid") { OptionsGrid(navController) }
-        composable("income_screen") { IncomeScreen(navController) }
+    when (currentScreen) {
+        "options_grid" -> OptionsGrid { selectedOption ->
+            if (selectedOption == "ประกันสังคม") {
+                currentScreen = "income_screen"
+            }
+        }
+        "income_screen" -> IncomeScreen { currentScreen = "options_grid" }
     }
 }
 
 @Composable
-fun OptionsGrid(navController: NavController) {
+fun OptionsGrid(onOptionSelected: (String) -> Unit) {
     val items = listOf(
         "ประกันสังคม" to R.drawable.account,
         "Easy E-Receipt" to R.drawable.receipt,
@@ -69,11 +65,7 @@ fun OptionsGrid(navController: NavController) {
                         OptionCard(
                             text = text,
                             iconRes = icon,
-                            onClick = {
-                                if (text == "ประกันสังคม") {
-                                    navController.navigate("income_screen")
-                                }
-                            }
+                            onClick = { onOptionSelected(text) }
                         )
                     }
                 }
@@ -87,8 +79,8 @@ fun OptionsGrid(navController: NavController) {
 fun OptionCard(text: String, iconRes: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .aspectRatio(1f) // ทำให้เป็นสี่เหลี่ยมจัตุรัส
-            .clickable { onClick() }, // เรียกใช้ onClick
+            .aspectRatio(1f)
+            .clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.elevatedCardElevation(4.dp)
     ) {
@@ -116,7 +108,7 @@ fun OptionCard(text: String, iconRes: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun IncomeScreen(navController: NavHostController) {
+fun IncomeScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -124,7 +116,6 @@ fun IncomeScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // Header
         Text(
             text = "เงินเดือน และโบนัส",
             fontWeight = FontWeight.Bold,
@@ -133,7 +124,6 @@ fun IncomeScreen(navController: NavHostController) {
         )
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Main Content
         Text(
             text = "รายได้\n(ก่อนถูกหักภาษี)",
             fontWeight = FontWeight.Medium,
@@ -149,9 +139,8 @@ fun IncomeScreen(navController: NavHostController) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Back Button
         Button(
-            onClick = { navController.navigateUp() }, // กลับไปหน้าก่อนหน้า
+            onClick = { onBack() },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {

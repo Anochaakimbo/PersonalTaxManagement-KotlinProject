@@ -9,6 +9,8 @@ import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
+import com.example.myproject.mainscreen.TaxAddScreen
+import com.example.myproject.mainscreen.TaxDeductionScreen
 
 
 @Composable
@@ -44,9 +46,10 @@ fun NavGraphForAfterLogin(navController: NavHostController){
         ) {
             TaxAddScreen(navController)
         }
-
-
-
-
+        composable(
+            route = Screen.TaxDeduction.route
+        ) {
+            TaxDeductionScreen(navController)
+        }
     }
 }
