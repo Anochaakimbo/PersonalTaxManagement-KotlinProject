@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
 }
 
 
-
 @Composable
 fun MyScaffoldLayout() {
     val contextForToast = LocalContext.current.applicationContext
@@ -45,8 +44,6 @@ fun MyScaffoldLayout() {
         NavGraphForAfterLogin(navController = navController)
     }
 }
-
-
 
 
 
