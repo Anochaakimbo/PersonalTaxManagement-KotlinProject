@@ -11,9 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-fun TaxAddScreen(){
+fun TaxAddScreen(navController: NavHostController) {
     val contextForToast = LocalContext.current.applicationContext
     Column(
         modifier = Modifier.fillMaxSize(),

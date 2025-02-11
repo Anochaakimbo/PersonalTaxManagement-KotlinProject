@@ -39,5 +39,16 @@ fun NavGraphForAfterLogin(navController: NavHostController){
             ProfileScreen(navController)
         }
 
+        composable(
+            route = Screen.TaxAdd.route
+        ) {
+            TaxAddScreen(navController)
+        }
+
+
+
+
+
+
     }
 }
