@@ -17,7 +17,7 @@ fun NavGraphForAfterLogin(navController: NavHostController){
         composable(
             route = Screen.Home.route
         ){
-            HomeScreen()
+            HomeScreen(navController)
         }
         composable(
             route = Screen.Search.route
