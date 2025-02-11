@@ -44,7 +44,3 @@ fun MyScaffoldLayout() {
         NavGraphForAfterLogin(navController = navController)
     }
 }
-
-
-
-
