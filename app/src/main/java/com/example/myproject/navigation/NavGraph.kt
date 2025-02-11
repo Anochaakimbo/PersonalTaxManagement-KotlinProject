@@ -1,10 +1,14 @@
-package com.example.myproject.mainscreen
+package com.example.myproject.navigation
 
 import androidx.compose.runtime.Composable
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myproject.mainscreen.HomeScreen
+import com.example.myproject.mainscreen.NotificationScreen
+import com.example.myproject.mainscreen.ProfileScreen
+import com.example.myproject.mainscreen.SearchScreen
 
 
 @Composable
@@ -22,17 +26,17 @@ fun NavGraphForAfterLogin(navController: NavHostController){
         composable(
             route = Screen.Search.route
         ){
-            SearchScreen()
+            SearchScreen(navController)
         }
         composable(
             route = Screen.Notification.route
         ){
-            NotificationScreen()
+            NotificationScreen(navController)
         }
         composable(
             route = Screen.Profile.route
         ){
-            ProfileScreen()
+            ProfileScreen(navController)
         }
 
     }

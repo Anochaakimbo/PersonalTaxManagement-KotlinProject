@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.*
 import com.example.myproject.navigation.AppNavGraph
-import com.example.myproject.mainscreen.MyBottomBar
-import com.example.myproject.mainscreen.NavGraphForAfterLogin
+import com.example.myproject.components.MyBottomBar
+import com.example.myproject.navigation.NavGraphForAfterLogin
 import com.example.myproject.ui.theme.MyProjectTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +35,7 @@ fun MyScaffoldLayout() {
     val contextForToast = LocalContext.current.applicationContext
     val navController = rememberNavController()
     Scaffold(
-        bottomBar = { MyBottomBar(navController, contextForToast) }
+        bottomBar = { MyBottomBar(navController) }
     ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues),

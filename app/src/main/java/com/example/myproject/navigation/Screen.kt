@@ -1,4 +1,4 @@
-package com.example.myproject.mainscreen
+package com.example.myproject.navigation
 
 import androidx.annotation.DrawableRes
 import com.example.myproject.R
