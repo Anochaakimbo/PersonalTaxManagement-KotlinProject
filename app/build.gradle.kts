@@ -40,12 +40,14 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material-icons-extended:<version>")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.google.code.gson:gson:2.8.7")
     implementation ("androidx.compose.material3:material3:1.0.1")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -67,5 +69,4 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(libs.androidx.material3)
-
 }
