@@ -35,7 +35,9 @@ import retrofit2.Response
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val context = LocalContext.current
+    val contextForToast = LocalContext.current.applicationContext
+
+
     Scaffold(
         topBar = {
             com.example.myproject.components.TopAppBar(
@@ -83,7 +85,7 @@ fun HomeScreen(navController: NavHostController) {
 
                         Button(
                             onClick = {
-                                Toast.makeText(context, "Click Start", Toast.LENGTH_LONG).show()
+                                Toast.makeText(contextForToast, "Click Start", Toast.LENGTH_LONG).show()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                             modifier = Modifier
@@ -100,7 +102,7 @@ fun HomeScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ContentSection {
-                    Toast.makeText(context, "เลือกเมนู", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(contextForToast, "เลือกเมนู", Toast.LENGTH_SHORT).show()
                 }
             }
         }

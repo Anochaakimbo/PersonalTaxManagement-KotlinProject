@@ -3,7 +3,7 @@ package com.example.myproject.database
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class ProfileClass(
+data class UserClass(
 
     @Expose
     @SerializedName("id") val id : Int,

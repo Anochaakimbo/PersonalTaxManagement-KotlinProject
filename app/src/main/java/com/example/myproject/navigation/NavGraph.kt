@@ -44,7 +44,7 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         composable(
             route = Screen.Profile.route
         ){
-            ProfileScreen(navController)
+            ProfileScreen(navController,Modifier)
         }
         composable(
             route = Screen.TaxAdd.route

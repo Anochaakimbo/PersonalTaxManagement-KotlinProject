@@ -128,7 +128,7 @@ fun LoginScreen(navController: NavHostController,onLoginSuccess: () -> Unit) {
                                 when (loginResponse.success) {
                                     1 -> {
                                         sharedPreferences.isLoggedIn = true
-                                        sharedPreferences.userId = response.body()!!.id
+                                        sharedPreferences.userId = response.body()!!.id // ✅ บันทึกเป็น String
                                         sharedPreferences.userEmail = email
 
                                         Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()

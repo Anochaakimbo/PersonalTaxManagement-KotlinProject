@@ -1,6 +1,6 @@
 package com.example.myproject.api
 
-import com.example.myproject.database.ProfileClass
+import com.example.myproject.database.UserClass
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -8,10 +8,10 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface UserAPI {
-    @GET("searchUser/{id}")
-    fun searchUser(
-        @Path("id") id: Int,
-    ): Call<ProfileClass>
+    interface UserAPI {
+        @GET("search/{id}")
+        fun searchUser(@Path("id") id: Int): Call<UserClass>
+    }
 
     companion object {
         fun create(): UserAPI {
