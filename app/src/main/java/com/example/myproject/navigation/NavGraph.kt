@@ -1,10 +1,15 @@
 package com.example.myproject.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myproject.loginandsignup.ForgetPasswordScreen
+import com.example.myproject.loginandsignup.LoginScreen
+import com.example.myproject.loginandsignup.RegisterScreen
+import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
@@ -14,10 +19,11 @@ import com.example.myproject.mainscreen.TaxDeductionScreen
 
 
 @Composable
-fun NavGraphForAfterLogin(navController: NavHostController){
+fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess: () -> Unit){
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Login.route
     )
     {
         composable(
@@ -40,11 +46,30 @@ fun NavGraphForAfterLogin(navController: NavHostController){
         ){
             ProfileScreen(navController)
         }
-
         composable(
             route = Screen.TaxAdd.route
         ) {
             TaxAddScreen(navController)
+        }
+        composable(
+            route = Screen.TaxDeduction.route
+        ) {
+            TaxDeductionScreen(navController)
+        }
+        composable(
+            route = Screen.Login.route
+        ) {
+            LoginScreen(navController,onLoginSuccess)
+        }
+        composable(
+            route = Screen.Register.route
+        ) {
+            RegisterScreen(navController)
+        }
+        composable(
+            route = Screen.Forgetpassword.route
+        ) {
+            ForgetPasswordScreen(navController)
         }
         composable(
             route = Screen.TaxDeduction.route
