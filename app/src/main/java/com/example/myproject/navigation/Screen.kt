@@ -10,4 +10,6 @@ sealed class Screen(val route: String, val name: String, @DrawableRes val icon: 
     data object Notification : Screen(route = "notification_screen", name = "", icon = R.drawable.bell)
     data object Profile : Screen(route = "profile_screen", name = "", icon = R.drawable.menu)
     data object TaxDeduction : Screen(route = "taxdeduction_screen", name = "", icon = R.drawable.menu)
+    data object AddIncome : Screen(route = "addincome_screen", name = "", icon = R.drawable.menu)
+
 }

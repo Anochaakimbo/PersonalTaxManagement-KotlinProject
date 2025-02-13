@@ -5,9 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.myproject.mainscreen.AddIncomeScreen
 import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
-import com.example.myproject.mainscreen.ProfileScreen
+//import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxAddScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
@@ -35,11 +36,11 @@ fun NavGraphForAfterLogin(navController: NavHostController){
         ){
             NotificationScreen(navController)
         }
-        composable(
-            route = Screen.Profile.route
-        ){
-            ProfileScreen(navController)
-        }
+//        composable(
+//            route = Screen.Profile.route
+//        ){
+//            ProfileScreen(navController)
+//        }
 
         composable(
             route = Screen.TaxAdd.route
@@ -50,6 +51,11 @@ fun NavGraphForAfterLogin(navController: NavHostController){
             route = Screen.TaxDeduction.route
         ) {
             TaxDeductionScreen(navController)
+        }
+        composable(
+            route = Screen.AddIncome.route
+        ) {
+            AddIncomeScreen(navController)
         }
     }
 }
