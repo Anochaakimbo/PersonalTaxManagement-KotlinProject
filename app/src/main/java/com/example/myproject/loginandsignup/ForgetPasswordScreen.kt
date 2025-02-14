@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun ForgetPassword(navController: NavHostController
+fun ForgetPasswordScreen(navController: NavHostController
 ) {
     var email by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }

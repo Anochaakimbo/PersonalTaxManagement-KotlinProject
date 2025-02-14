@@ -1,4 +1,4 @@
-package com.example.myproject.mainscreen
+package com.example.myproject.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.myproject.navigation.Screen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaxButtomSheet(onDismiss: () -> Unit) {
+fun TaxButtomSheet(navConroller: NavHostController, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
@@ -58,7 +60,7 @@ fun TaxButtomSheet(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /* Handle เพิ่มรายได้ */ },
+                    onClick = {  navConroller.navigate(Screen.AddIncome.route) },
                     modifier = Modifier.weight(1f).padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDAF7A6))
                 ) {
@@ -66,7 +68,9 @@ fun TaxButtomSheet(onDismiss: () -> Unit) {
                 }
 
                 Button(
-                    onClick = { /* Handle ค่าลดหย่อน */ },
+                    onClick = {
+                        navConroller.navigate(Screen.TaxDeduction.route)
+                    },
                     modifier = Modifier.weight(1f).padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA6E1FA))
                 ) {

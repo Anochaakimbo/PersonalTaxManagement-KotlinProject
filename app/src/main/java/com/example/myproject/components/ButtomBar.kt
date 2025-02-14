@@ -1,5 +1,4 @@
-package com.example.myproject.mainscreen
-import android.content.Context
+package com.example.myproject.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +23,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.myproject.navigation.Screen
 
 
 @Composable
-fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
+fun MyBottomBar(navController: NavHostController) {
     val navigationItems = listOf(
         Screen.Home,
         Screen.Search,
@@ -89,6 +89,6 @@ fun MyBottomBar(navController: NavHostController, contextForToast: Context) {
     }
 
     if (showBottomSheet) {
-        TaxButtomSheet(onDismiss = { showBottomSheet = false })
+        TaxButtomSheet(navController,onDismiss = { showBottomSheet = false })
     }
 }
