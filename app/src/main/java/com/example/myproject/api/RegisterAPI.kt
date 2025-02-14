@@ -6,21 +6,22 @@ import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 
 interface RegisterAPI {
-    @Multipart
+    @FormUrlEncoded
     @POST("insertUser")
     fun insertUser(
-        @Part("email") email : RequestBody,
-        @Part("password") password : RequestBody,
-        @Part("lname") lname : RequestBody,
-        @Part("fname") fname : RequestBody,
-        @Part("gender") gender : RequestBody,
+        @Field("email") email: String,
+        @Field("password") password: String,
+        @Field("fname") fname: String,
+        @Field("lname") lname: String,
+        @Field("gender") gender: String,
     ): Call<UserClass>
-
     companion object {
         fun create(): RegisterAPI {
             val registerClient = Retrofit.Builder()

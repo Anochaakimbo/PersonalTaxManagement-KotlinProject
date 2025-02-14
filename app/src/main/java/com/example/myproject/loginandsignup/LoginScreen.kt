@@ -118,6 +118,7 @@ fun LoginScreen(navController: NavHostController,onLoginSuccess: () -> Unit) {
 
         Spacer(modifier = Modifier.size(30.dp))
 
+
         Button(
             onClick = {
                 isError = !validateInput(email, password)
@@ -169,7 +170,7 @@ fun LoginScreen(navController: NavHostController,onLoginSuccess: () -> Unit) {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(bounded = true)
                     ) {
-                        navController.navigate("register")
+                        navController.navigate(Screen.Register.route)
                     }
                     .padding(4.dp)
             )
