@@ -60,7 +60,7 @@ fun TaxButtomSheet(navConroller: NavHostController, onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /* Handle เพิ่มรายได้ */ },
+                    onClick = {  navConroller.navigate(Screen.AddIncome.route) },
                     modifier = Modifier.weight(1f).padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDAF7A6))
                 ) {

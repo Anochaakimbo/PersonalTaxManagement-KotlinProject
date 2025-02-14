@@ -133,9 +133,7 @@ fun LoginScreen(navController: NavHostController,onLoginSuccess: () -> Unit) {
 
                                         Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
                                         onLoginSuccess() // ✅ อัปเดตสถานะล็อกอินใน `MainActivity.kt`
-                                        navController.navigate(Screen.Home.route) {
-                                            popUpTo(Screen.Login.route) { inclusive = true }
-                                        }
+                                        navController.navigate(Screen.Home.route)
                                     }
                                     else -> {
                                         Toast.makeText(contextForToast, "Email or password is incorrect.", Toast.LENGTH_LONG).show()

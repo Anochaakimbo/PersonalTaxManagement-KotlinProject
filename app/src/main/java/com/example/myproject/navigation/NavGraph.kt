@@ -10,11 +10,11 @@ import com.example.myproject.loginandsignup.ForgetPasswordScreen
 import com.example.myproject.loginandsignup.LoginScreen
 import com.example.myproject.loginandsignup.RegisterScreen
 import com.example.myproject.loginandsignup.SharedPreferencesManager
+import com.example.myproject.mainscreen.AddIncomeScreen
 import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
-import com.example.myproject.mainscreen.TaxAddScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
 
 
@@ -47,11 +47,6 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             ProfileScreen(navController,Modifier)
         }
         composable(
-            route = Screen.TaxAdd.route
-        ) {
-            TaxAddScreen(navController)
-        }
-        composable(
             route = Screen.TaxDeduction.route
         ) {
             TaxDeductionScreen(navController)
@@ -72,9 +67,9 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             ForgetPasswordScreen(navController)
         }
         composable(
-            route = Screen.TaxDeduction.route
+            route = Screen.AddIncome.route
         ) {
-            TaxDeductionScreen(navController)
+            AddIncomeScreen(navController)
         }
     }
 }

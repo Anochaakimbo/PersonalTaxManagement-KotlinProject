@@ -19,14 +19,19 @@ import com.example.myproject.R
 @Composable
 fun TaxDeductionScreen(navController: NavHostController) {
     var currentScreen by remember { mutableStateOf("options_grid") }
+    var selectedOption by remember { mutableStateOf("") }
+    var userInput by remember { mutableStateOf("") }
 
     when (currentScreen) {
-        "options_grid" -> OptionsGrid { selectedOption ->
-            if (selectedOption == "ประกันสังคม") {
-                currentScreen = "income_screen"
-            }
+        "options_grid" -> OptionsGrid { option ->
+            selectedOption = option
+            currentScreen = "income_screen"
         }
-        "income_screen" -> IncomeScreen { currentScreen = "options_grid" }
+        "income_screen" -> IncomeScreen(selectedOption, userInput) { input ->
+            userInput = input
+            currentScreen = "options_grid"
+            // Do something with userInput like saving to database or navigating
+        }
     }
 }
 
@@ -44,22 +49,24 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 24.dp), // Adjust padding
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "เพิ่ม\nค่าลดหย่อนที่มี",
+            text = "เพิ่มค่าลดหย่อนที่มี",
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp)) // Add spacing for aesthetics
 
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp) // Add spacing between rows
+        ) {
             items.chunked(2).forEach { rowItems ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.SpaceEvenly // Distribute buttons evenly
                 ) {
                     rowItems.forEach { (text, icon) ->
                         OptionCard(
@@ -69,7 +76,6 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -79,28 +85,30 @@ fun OptionsGrid(onOptionSelected: (String) -> Unit) {
 fun OptionCard(text: String, iconRes: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .aspectRatio(1f)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
+            .size(150.dp) // Adjust button size
+            .clickable { onClick() }
+            .padding(4.dp),
+        shape = RoundedCornerShape(16.dp), // Round corners
+        elevation = CardDefaults.elevatedCardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(id = iconRes),
                 contentDescription = text,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(56.dp) // Adjust icon size
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
         }
@@ -108,43 +116,50 @@ fun OptionCard(text: String, iconRes: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun IncomeScreen(onBack: () -> Unit) {
+fun IncomeScreen(optionName: String, userInput: String, onSave: (String) -> Unit) {
+    var income by remember { mutableStateOf(userInput) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(24.dp), // Adjust padding
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Center // Center elements vertically
     ) {
         Text(
-            text = "เงินเดือน และโบนัส",
+            text = optionName,
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "รายได้\n(ก่อนถูกหักภาษี)",
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            textAlign = TextAlign.Center
+        TextField(
+            value = income,
+            onValueChange = { income = it },
+            label = { Text("รายได้ (ก่อนถูกหักภาษี)") },
+            singleLine = true,
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "฿",
-            fontWeight = FontWeight.Bold,
-            fontSize = 40.sp,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { onBack() },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            onClick = { onSave(income) },
+            modifier = Modifier
+                .width(140.dp) // Adjust button size
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp), // Round corners
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
         ) {
-            Text("กลับ", color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp)
+            Text(
+                text = "บันทึก",
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
         }
     }
 }
