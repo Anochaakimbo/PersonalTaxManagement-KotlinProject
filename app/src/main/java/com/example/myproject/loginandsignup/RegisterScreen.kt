@@ -28,15 +28,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myproject.navigation.Screen
 
 @Composable
 fun RegisterScreen(navController: NavHostController
 ) {
-    var name by remember { mutableStateOf("") }
+    var fname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var lname by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+
+    var selectedGender by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -52,12 +56,25 @@ fun RegisterScreen(navController: NavHostController
         )
 
         OutlinedTextField(
-            value = name,
+            value = fname,
             onValueChange = {
-                name = it
+                fname = it
                 isError = false
             },
-            label = { Text("ชื่อผู้ใช้") },
+            label = { Text("ชื่อจริง") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            isError = isError
+        )
+
+        OutlinedTextField(
+            value = lname,
+            onValueChange = {
+                lname = it
+                isError = false
+            },
+            label = { Text("นามสกุล") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -101,10 +118,10 @@ fun RegisterScreen(navController: NavHostController
 
         Button(
             onClick = {
-                isError = !validateRegistrationInput(name, email, password, confirmPassword)
+                isError = !validateRegistrationInput(fname,lname, email, password, confirmPassword)
                 if (!isError) {
                     // Implement registration logic here
-                    navController.navigate("login")
+                    navController.navigate(Screen.Login.route)
                 }
             },
             modifier = Modifier
@@ -140,12 +157,14 @@ fun RegisterScreen(navController: NavHostController
 }
 
 private fun validateRegistrationInput(
-    name: String,
+    fname: String,
+    lname: String,
     email: String,
     password: String,
     confirmPassword: String
 ): Boolean {
-    return name.isNotEmpty() &&
+    return fname.isNotEmpty() &&
+            lname.isNotEmpty() &&
             email.isNotEmpty() &&
             password.isNotEmpty() &&
             confirmPassword.isNotEmpty() &&
