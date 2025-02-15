@@ -19,9 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.myproject.navigation.Screen
 
 @Composable
-fun ForgetPassword(navController: NavHostController
+fun ForgetPasswordScreen(navController: NavHostController
 ) {
     var email by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
@@ -55,7 +56,7 @@ fun ForgetPassword(navController: NavHostController
             onClick = {
                 isError = !validateInput(email)
                 if (!isError) {
-                    navController.navigate("login")
+                    navController.navigate(Screen.Login.route)
                 }
             },
             modifier = Modifier
