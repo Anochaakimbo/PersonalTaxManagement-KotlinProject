@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -245,7 +246,7 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(16.dp))
+            .border(BorderStroke(1.dp, Color.LightGray), RoundedCornerShape(16.dp))
             .shadow(10.dp, RoundedCornerShape(16.dp))
             .background(Color.White)
             .padding(16.dp)
@@ -258,7 +259,7 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
         )
 
         items.forEach { (text, icon) ->
-            Button(
+            TextButton(
                 onClick = {
                     when (text) {
                         "แก้ไขข้อมูลส่วนตัว" -> navController.navigate(Screen.EditProfileScreen.route)
@@ -273,24 +274,28 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .align(Alignment.Start) // ทำให้ปุ่มชิดซ้าย
                     .padding(vertical = 4.dp)
                     .height(50.dp),
+
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C09E))
+                colors = ButtonDefaults.textButtonColors(containerColor = Color.Transparent)
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = Color.Black,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = text,
-                        color = Color.White,
+                        color = Color.Black,
                         style = TextStyle(fontSize = 16.sp)
                     )
                 }
@@ -298,4 +303,3 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
         }
     }
 }
-
