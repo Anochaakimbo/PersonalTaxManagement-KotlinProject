@@ -1,6 +1,7 @@
 package com.example.myproject.mainscreen
 
 import android.widget.Toast
+import androidx.activity.compose.LocalActivityResultRegistryOwner.current
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,6 +31,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,23 +50,25 @@ import com.example.myproject.R
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
-    LazyColumn( // ใช้ LazyColumn ให้สามารถเลื่อนได้ทั้งหมด
+    val context = LocalContext.current
+
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF1FFF3)), // พื้นหลังของทั้งหน้า
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .background(Color(0xFFF1FFF3)),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 80.dp)
     ) {
-        // ส่วนหัวโปรไฟล์
         item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp) // ปรับความสูง
-                    .background(Color(0xFF00BFA5)), // สีพื้นหลังส่วนหัว
+                    .height(280.dp)
+                    .background(Color(0xFF00BFA5)),
                 contentAlignment = Alignment.TopCenter
             ) {
                 Column(
-                    modifier = Modifier.padding(top = 50.dp), // เลื่อนรูปลงมา
+                    modifier = Modifier.padding(top = 50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
@@ -113,7 +118,6 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // กล่องตั้งค่า
         item {
             ProfileSection(
                 title = "ตั้งค่าทั่วไป",
@@ -146,11 +150,31 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             )
         }
 
+        // ปุ่ม Logout ที่ล่างสุด
         item {
-            Spacer(modifier = Modifier.height(100.dp)) // ทำให้มีระยะห่างด้านล่าง
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "Logged out!", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = "Logout", fontSize = 18.sp)
+                }
+            }
+            Spacer(modifier = Modifier.height(50.dp)) // เว้นช่องว่างล่างสุด
         }
     }
 }
+
 
 @Composable
 fun ProfileSection(title: String, items: List<Pair<String, Int>>) {
@@ -189,6 +213,42 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EditProfileScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF1FFF3))
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "แก้ไขโปรไฟล์",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        OutlinedTextField(value = "นายดุ่ย ต้นดาตัน", onValueChange = {}, label = { Text("ชื่อ - นามสกุล") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "ดุ่ยสวาทหาดสวรรค์", onValueChange = {}, label = { Text("ชื่อเล่น") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "Dui@gmail.com", onValueChange = {}, label = { Text("อีเมล") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "123-456-7890", onValueChange = {}, label = { Text("เบอร์โทรศัพท์") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "ไทย", onValueChange = {}, label = { Text("ประเทศ") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "ชาย", onValueChange = {}, label = { Text("เพศ") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(value = "หว่อแลนเดอร์", onValueChange = {}, label = { Text("ที่อยู่") }, modifier = Modifier.fillMaxWidth())
+
+        Button(
+            onClick = {
+
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(text = "ยืนยัน", fontSize = 18.sp)
         }
     }
 }
