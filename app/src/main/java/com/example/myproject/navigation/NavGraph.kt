@@ -16,6 +16,7 @@ import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
+import com.example.myproject.profilesubscreen.EditScreen
 
 
 @Composable
@@ -71,5 +72,12 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         ) {
             AddIncomeScreen(navController)
         }
+        //Profile
+        composable(
+            route = Screen.EditProfileScreen.route
+        ) {
+            EditScreen(navController)
+        }
+
     }
 }

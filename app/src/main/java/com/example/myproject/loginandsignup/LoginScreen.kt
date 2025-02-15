@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -146,7 +147,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
-                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (passwordVisible) Icons.Default.Done else Icons.Default.Close ,
                                     contentDescription = if (passwordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -179,32 +180,45 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                             focusManager.clearFocus()
 
                             isError = !validateInput(email, password)
-                            if (!isError) {
-                                createClient.loginUser(email, password).enqueue(object : Callback<LoginClass> {
-                                    override fun onResponse(call: Call<LoginClass>, response: Response<LoginClass>) {
-                                        response.body()?.let { loginResponse ->
-                                            when (loginResponse.success) {
-                                                1 -> {
-                                                    sharedPreferences.isLoggedIn = true
-                                                    sharedPreferences.userId = response.body()!!.id
-                                                    sharedPreferences.userEmail = email
 
-                                                    Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
-                                                    onLoginSuccess()
-                                                    navController.navigate(Screen.Home.route)
+                            if (!isError) {
+                                // ตรวจสอบค่าแบบฮาร์ดโค้ด
+                                if (email == "test" && password == "test") {
+                                    sharedPreferences.isLoggedIn = true
+                                    sharedPreferences.userId = 999 // ตั้งค่า userId ปลอม
+                                    sharedPreferences.userEmail = email
+
+                                    Toast.makeText(contextForToast, "Login successful", Toast.LENGTH_LONG).show()
+                                    onLoginSuccess()
+                                    navController.navigate(Screen.Home.route)
+                                } else {
+                                    // ใช้ API ปกติ
+                                    createClient.loginUser(email, password).enqueue(object : Callback<LoginClass> {
+                                        override fun onResponse(call: Call<LoginClass>, response: Response<LoginClass>) {
+                                            response.body()?.let { loginResponse ->
+                                                when (loginResponse.success) {
+                                                    1 -> {
+                                                        sharedPreferences.isLoggedIn = true
+                                                        sharedPreferences.userId = response.body()!!.id
+                                                        sharedPreferences.userEmail = email
+
+                                                        Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
+                                                        onLoginSuccess()
+                                                        navController.navigate(Screen.Home.route)
+                                                    }
+                                                    else -> {
+                                                        Toast.makeText(contextForToast, "Email or password is incorrect.", Toast.LENGTH_LONG).show()
+                                                    }
                                                 }
-                                                else -> {
-                                                    Toast.makeText(contextForToast, "Email or password is incorrect.", Toast.LENGTH_LONG).show()
-                                                }
+                                            } ?: run {
+                                                Toast.makeText(contextForToast, "Login failed. Please try again.", Toast.LENGTH_LONG).show()
                                             }
-                                        } ?: run {
-                                            Toast.makeText(contextForToast, "Login failed. Please try again.", Toast.LENGTH_LONG).show()
                                         }
-                                    }
-                                    override fun onFailure(call: Call<LoginClass>, t: Throwable) {
-                                        Toast.makeText(contextForToast, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-                                    }
-                                })
+                                        override fun onFailure(call: Call<LoginClass>, t: Throwable) {
+                                            Toast.makeText(contextForToast, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+                                        }
+                                    })
+                                }
                             }
                         },
                         modifier = Modifier

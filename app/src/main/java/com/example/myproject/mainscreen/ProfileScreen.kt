@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,15 +43,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.myproject.R
 import com.example.myproject.api.UserAPI
 import com.example.myproject.database.UserClass
 import com.example.myproject.loginandsignup.SharedPreferencesManager
+import com.example.myproject.navigation.Screen
+import com.example.myproject.profilesubscreen.EditScreen
 import retrofit2.Callback
 import retrofit2.Response
 
@@ -104,7 +113,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF1FFF3)), // พื้นหลังของทั้งหน้า
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 80.dp)
     ) {
         // ส่วนหัวโปรไฟล์
         item {
@@ -174,7 +184,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     "แก้ไขข้อมูลส่วนตัว" to R.drawable.id_card,
                     "การแจ้งเตือน" to R.drawable.bell,
                     "เปลี่ยนภาษา" to R.drawable.translate
-                )
+                ),
+                navController = navController
             )
         }
 
@@ -184,7 +195,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                 items = listOf(
                     "ความปลอดภัย" to R.drawable.shield,
                     "ธีม" to R.drawable.contrast
-                )
+                ),
+                navController = navController
             )
         }
 
@@ -195,49 +207,90 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     "การช่วยเหลือและสนับสนุน" to R.drawable.help,
                     "ติดต่อเรา" to R.drawable.conversation,
                     "ความเป็นส่วนตัว" to R.drawable.unlock
-                )
+                ),
+                navController = navController
             )
         }
 
         item {
-            Spacer(modifier = Modifier.height(100.dp)) // ทำให้มีระยะห่างด้านล่าง
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        Toast.makeText(contextForToast, "Logged out!", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00C09E)
+                    )
+                ) {
+                    Text(text = "Logout", fontSize = 18.sp)
+                }
+            }
+            Spacer(modifier = Modifier.height(50.dp)) // เว้นช่องว่างล่างสุด
         }
     }
 }
 
 @Composable
-fun ProfileSection(title: String, items: List<Pair<String, Int>>) {
-    Box(
+fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController: NavHostController) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)) // ปรับมุมโค้งให้มากขึ้น
+            .clip(RoundedCornerShape(16.dp))
             .border(BorderStroke(1.dp, Color.Gray), RoundedCornerShape(16.dp))
-            .shadow(10.dp, RoundedCornerShape(16.dp)) // เงาที่เข้มขึ้น
+            .shadow(10.dp, RoundedCornerShape(16.dp))
             .background(Color.White)
             .padding(16.dp)
     ) {
-        Column {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            items.forEach { (text, icon) ->
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        items.forEach { (text, icon) ->
+            Button(
+                onClick = {
+                    when (text) {
+                        "แก้ไขข้อมูลส่วนตัว" -> navController.navigate(Screen.EditProfileScreen.route)
+                        "การแจ้งเตือน" -> navController.navigate("notification_screen")
+                        "เปลี่ยนภาษา" -> navController.navigate("language_screen")
+                        "ความปลอดภัย" -> navController.navigate("security_screen")
+                        "ธีม" -> navController.navigate("theme_screen")
+                        "การช่วยเหลือและสนับสนุน" -> navController.navigate("support_screen")
+                        "ติดต่อเรา" -> navController.navigate("contact_screen")
+                        "ความเป็นส่วนตัว" -> navController.navigate("privacy_screen")
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C09E))
+            ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = icon),
                         contentDescription = null,
-                        tint = Color.Black,
+                        tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = text,
-                        color = Color.Black,
+                        color = Color.White,
                         style = TextStyle(fontSize = 16.sp)
                     )
                 }
@@ -245,3 +298,4 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>) {
         }
     }
 }
+
