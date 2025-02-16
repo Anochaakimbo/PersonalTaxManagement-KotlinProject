@@ -1,8 +1,8 @@
 package com.example.myproject.loginandsignup
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
@@ -40,7 +43,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
-
+    val myFont = FontFamily(Font(R.font.khaidao))
     val createClient = LoginAPI.create()
     val contextForToast = LocalContext.current.applicationContext
     lateinit var sharedPreferences: SharedPreferencesManager
@@ -99,7 +102,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
 
                 Text(
                     text = "ยินดีต้อนรับสู่ MyTaX",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),
                     color = Color.White
                 )
             }
