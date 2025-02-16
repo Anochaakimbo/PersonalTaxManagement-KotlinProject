@@ -1,5 +1,3 @@
-package com.example.myproject.mainscreen
-
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -12,6 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,13 +21,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.myproject.R
+import com.example.myproject.loginandsignup.SharedPreferencesManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val context = LocalContext.current
+    val contextForToast = LocalContext.current.applicationContext
+
+
     Scaffold(
+        topBar = {
+            com.example.myproject.components.TopAppBar(
+                navController = navController,
+                modifier = Modifier.zIndex(-1f)
+            ) // ✅ เพิ่ม TopAppBar
+        },
         containerColor = Color.White
     ) { paddingValues ->
         Box(
@@ -67,7 +83,7 @@ fun HomeScreen(navController: NavHostController) {
 
                         Button(
                             onClick = {
-                                Toast.makeText(context, "Click Start", Toast.LENGTH_LONG).show()
+                                Toast.makeText(contextForToast, "Click Start", Toast.LENGTH_LONG).show()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                             modifier = Modifier
@@ -84,7 +100,7 @@ fun HomeScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ContentSection {
-                    Toast.makeText(context, "เลือกเมนู", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(contextForToast, "เลือกเมนู", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -152,37 +168,37 @@ fun ContentSection(onItemClick: () -> Unit) {
     }
 }
 
-            @Composable
-            fun TaxItem(title: String, showArrow: Boolean, onItemClick: () -> Unit) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .clickable { onItemClick() },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.money_transfer_test),
-                        contentDescription = "Money Icon",
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(end = 12.dp)
-                    )
+@Composable
+fun TaxItem(title: String, showArrow: Boolean, onItemClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onItemClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.money_transfer_test),
+            contentDescription = "Money Icon",
+            modifier = Modifier
+                .size(48.dp)
+                .padding(end = 12.dp)
+        )
 
-                    Text(
-                        text = title,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
 
-                    if (showArrow) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "Arrow Icon",
-                            tint = Color.Black,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
+        if (showArrow) {
+            Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = "Arrow Icon",
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
