@@ -73,6 +73,9 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
     var userItems by remember { mutableStateOf(initialUser) }
     var logoutDialog by remember { mutableStateOf(false) }
     var checkState by remember { mutableStateOf(false) }
+    var notificationEnabled by remember { mutableStateOf(true) }
+    var languageThai by remember { mutableStateOf(true) }
+    var darkTheme by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
@@ -186,7 +189,13 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     "การแจ้งเตือน" to R.drawable.bell,
                     "เปลี่ยนภาษา" to R.drawable.translate
                 ),
-                navController = navController
+                navController = navController,
+                notificationEnabled = notificationEnabled,
+                onNotificationToggle = { notificationEnabled = it },
+                languageThai = languageThai,
+                onLanguageToggle = { languageThai = it },
+                darkTheme = darkTheme,
+                onThemeToggle = { darkTheme = it }
             )
         }
 
@@ -197,7 +206,14 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     "ความปลอดภัย" to R.drawable.shield,
                     "ธีม" to R.drawable.contrast
                 ),
-                navController = navController
+                navController = navController,
+                notificationEnabled = notificationEnabled,
+                onNotificationToggle = { notificationEnabled = it },
+                languageThai = languageThai,
+                onLanguageToggle = { languageThai = it },
+                darkTheme = darkTheme,
+                onThemeToggle = { darkTheme = it }
+
             )
         }
 
@@ -209,7 +225,13 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     "ติดต่อเรา" to R.drawable.conversation,
                     "ความเป็นส่วนตัว" to R.drawable.unlock
                 ),
-                navController = navController
+                navController = navController,
+                notificationEnabled = notificationEnabled,
+                onNotificationToggle = { notificationEnabled = it },
+                languageThai = languageThai,
+                onLanguageToggle = { languageThai = it },
+                darkTheme = darkTheme,
+                onThemeToggle = { darkTheme = it }
             )
         }
 
@@ -241,7 +263,19 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
 }
 
 @Composable
-fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController: NavHostController) {
+fun ProfileSection(title: String, items: List<Pair<String, Int>>,
+                   navController: NavHostController ,
+                   notificationEnabled: Boolean,
+                   onNotificationToggle: (Boolean) -> Unit,
+                   languageThai: Boolean,
+                    onLanguageToggle: (Boolean) -> Unit,
+                    darkTheme: Boolean,
+                   onThemeToggle: (Boolean) -> Unit)
+
+
+
+{
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -263,7 +297,6 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
                 onClick = {
                     when (text) {
                         "แก้ไขข้อมูลส่วนตัว" -> navController.navigate(Screen.EditProfileScreen.route)
-                        "การแจ้งเตือน" -> navController.navigate("notification_screen")
                         "เปลี่ยนภาษา" -> navController.navigate("language_screen")
                         "ความปลอดภัย" -> navController.navigate("security_screen")
                         "ธีม" -> navController.navigate("theme_screen")
@@ -298,6 +331,28 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>, navController:
                         color = Color.Black,
                         style = TextStyle(fontSize = 16.sp)
                     )
+                    if (text == "การแจ้งเตือน") {
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(onClick = { onNotificationToggle(!notificationEnabled) }) {
+                            Text(
+                                text = if (notificationEnabled) "เปิด" else "ปิด",
+                                color = Color.Blue
+                            )
+                        }
+                    }
+                    if (text == "เปลี่ยนภาษา") {
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(onClick = { onLanguageToggle(!languageThai) }) {
+                            Text(text = if (languageThai) "ไทย" else "English", color = Color.Blue)
+                        }
+                    }
+
+                    if (text == "ธีม") {
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(onClick = { onThemeToggle(!darkTheme) }) {
+                            Text(text = if (darkTheme) "มืด" else "สว่าง", color = Color.Blue)
+                        }
+                    }
                 }
             }
         }
