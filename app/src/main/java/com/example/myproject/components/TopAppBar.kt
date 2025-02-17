@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -28,14 +29,14 @@ fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
     // กำหนด title ตาม route ปัจจุบัน
     val title = when (currentRoute) {
         Screen.Home.route -> "หน้าแรก"
-        Screen.Search.route -> "ค้นหา"
+        Screen.Search.route -> "แนะนำลดหย่อนภาษี"
         Screen.TaxAdd.route -> "เพิ่มภาษี"
         Screen.Notification.route -> "การแจ้งเตือน"
         Screen.Profile.route -> "โปรไฟล์"
         else -> "แอปของฉัน" // ค่าเริ่มต้น
     }
 
-    // ✅ ใช้ zIndex(-1f) เพื่อให้มันอยู่ข้างหลังสุด
+    // ✅ ใช้ zIndex(-1f) เ
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,6 +50,7 @@ fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = title,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )

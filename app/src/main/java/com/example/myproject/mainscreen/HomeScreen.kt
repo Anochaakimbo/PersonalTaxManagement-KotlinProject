@@ -34,8 +34,6 @@ import retrofit2.Response
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val contextForToast = LocalContext.current.applicationContext
-
-
     Scaffold(
         topBar = {
             com.example.myproject.components.TopAppBar(
