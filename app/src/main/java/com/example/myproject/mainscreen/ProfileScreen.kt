@@ -298,7 +298,7 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
                     when (text) {
                         "แก้ไขข้อมูลส่วนตัว" -> navController.navigate(Screen.EditProfileScreen.route)
                         "เปลี่ยนภาษา" -> navController.navigate("language_screen")
-                        "ความปลอดภัย" -> navController.navigate("security_screen")
+                        "ความปลอดภัย" -> navController.navigate(Screen.SecureScreen.route)
                         "ธีม" -> navController.navigate("theme_screen")
                         "การช่วยเหลือและสนับสนุน" -> navController.navigate("support_screen")
                         "ติดต่อเรา" -> navController.navigate("contact_screen")

@@ -17,6 +17,7 @@ import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
 import com.example.myproject.profilesubscreen.EditScreen
+import com.example.myproject.profilesubscreen.SecureScreen
 
 
 @Composable
@@ -77,6 +78,12 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             route = Screen.EditProfileScreen.route
         ) {
             EditScreen(navController)
+        }
+
+        composable(
+            route = Screen.SecureScreen.route
+        ) {
+            SecureScreen(navController)
         }
 
     }
