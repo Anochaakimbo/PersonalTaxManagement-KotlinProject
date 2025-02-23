@@ -9,13 +9,15 @@ import androidx.navigation.compose.composable
 import com.example.myproject.loginandsignup.ForgetPasswordScreen
 import com.example.myproject.loginandsignup.LoginScreen
 import com.example.myproject.loginandsignup.RegisterScreen
-import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.mainscreen.AddIncomeScreen
 import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
+//import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
+import com.example.myproject.mainscreen.TaxSavingScreen
+
 
 
 @Composable
@@ -71,5 +73,11 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         ) {
             AddIncomeScreen(navController)
         }
+
+        composable(Screen.TaxSaving.route
+        ) {
+            TaxSavingScreen(navController)
+        }
+
     }
 }

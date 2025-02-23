@@ -70,4 +70,25 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation(libs.androidx.material3)
+
+
+
+        implementation("androidx.compose.ui:ui:1.5.4")
+        implementation("androidx.compose.material:material:1.5.4")
+        implementation("androidx.compose.ui:ui-tooling-preview:1.5.4")
+        implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+        implementation("androidx.activity:activity-compose:1.8.2")
+        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.4")
+        debugImplementation("androidx.compose.ui:ui-tooling:1.5.4")
+        debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.4")
+
+        // Navigation Compose
+        implementation("androidx.navigation:navigation-compose:2.7.6")
+
+        // Material3
+        implementation("androidx.compose.material3:material3:1.1.2")
+
+        // Coil
+        implementation("io.coil-kt:coil-compose:2.5.0")
+
 }
