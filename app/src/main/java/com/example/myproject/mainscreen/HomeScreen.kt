@@ -2,23 +2,30 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -34,11 +41,14 @@ import retrofit2.Response
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val contextForToast = LocalContext.current.applicationContext
+    var selectedYear by remember { mutableStateOf("2567") } // ตัวแปรเก็บปีที่เลือก
+    var expanded by remember { mutableStateOf(false) } // สำหรับเปิด/ปิดเมนูเลือกปี
+
     Scaffold(
         topBar = {
             com.example.myproject.components.TopAppBar(
                 navController = navController,
-                modifier = Modifier.zIndex(-1f)
+                modifier = Modifier.zIndex(1f)
             ) // ✅ เพิ่ม TopAppBar
         },
         containerColor = Color.White
@@ -55,6 +65,63 @@ fun HomeScreen(navController: NavHostController) {
                     .align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // เพิ่มกล่องสำหรับจัดวางปุ่มเลือกปี
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 16.dp, top = 8.dp)
+                ) {
+                    // ปุ่มเลือกปีที่มีกรอบโค้งมนที่มุมขวาบน
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                            .clickable { expanded = !expanded }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "$selectedYear",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDropDown,
+                            contentDescription = "Dropdown Year"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .width(120.dp)
+                            .background(Color.White),
+                        // กำหนดจุดอ้างอิงสำหรับการวางตำแหน่ง
+                        offset = DpOffset(x = (-16).dp, y = 0.dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = "2567") },
+                            onClick = {
+                                selectedYear = "2567"
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = "2568") },
+                            onClick = {
+                                selectedYear = "2568"
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(22.dp)) // เพิ่มระยะห่างด้านบนของเนื้อหา
+
+                // Box ที่มี "เริ่มคำนวณภาษี"
                 Box(
                     modifier = Modifier
                         .size(width = 250.dp, height = 200.dp)
@@ -84,6 +151,7 @@ fun HomeScreen(navController: NavHostController) {
                                 Toast.makeText(contextForToast, "Click Start", Toast.LENGTH_LONG).show()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(20.dp), // ทำให้ปุ่มโค้งมนมากขึ้น
                             modifier = Modifier
                         ) {
                             Text(
@@ -104,6 +172,7 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
 }
+
 @Composable
 fun ContentSection(onItemClick: () -> Unit) {
     LazyColumn {
