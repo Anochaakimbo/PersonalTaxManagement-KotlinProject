@@ -16,5 +16,7 @@ sealed class Screen(val route: String, val name: String, @DrawableRes val icon: 
     data object Forgetpassword : Screen(route = "forgetpassword_screen", name = "Forgetpassword",icon = R.drawable.menu)
     data object EditProfileScreen : Screen(route = "editprofilescreen_screen", name = "EditProfile",icon = R.drawable.trending)
     data object SecureScreen : Screen(route = "securescreen_screen", name = "Secure",icon = R.drawable.trending)
+    data object PrivacyScreen : Screen(route = "privacyscreen_screen", name = "Privacy",icon = R.drawable.trending)
+    data object ContactScreen : Screen(route = "contactscreen_screen", name = "Contact",icon = R.drawable.trending)
 
 }

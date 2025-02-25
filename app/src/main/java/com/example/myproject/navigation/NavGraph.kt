@@ -16,7 +16,9 @@ import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
+import com.example.myproject.profilesubscreen.ContactUsScreen
 import com.example.myproject.profilesubscreen.EditScreen
+import com.example.myproject.profilesubscreen.PrivacyAndPermissionsScreen
 import com.example.myproject.profilesubscreen.SecureScreen
 
 
@@ -84,6 +86,18 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             route = Screen.SecureScreen.route
         ) {
             SecureScreen(navController)
+        }
+
+        composable(
+            route = Screen.PrivacyScreen.route
+        ) {
+            PrivacyAndPermissionsScreen(navController)
+        }
+
+        composable(
+            route = Screen.ContactScreen.route
+        ) {
+            ContactUsScreen(navController)
         }
 
     }

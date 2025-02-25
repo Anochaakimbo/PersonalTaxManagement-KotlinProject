@@ -301,8 +301,8 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
                         "ความปลอดภัย" -> navController.navigate(Screen.SecureScreen.route)
                         "ธีม" -> navController.navigate("theme_screen")
                         "การช่วยเหลือและสนับสนุน" -> navController.navigate("support_screen")
-                        "ติดต่อเรา" -> navController.navigate("contact_screen")
-                        "ความเป็นส่วนตัว" -> navController.navigate("privacy_screen")
+                        "ติดต่อเรา" -> navController.navigate(Screen.ContactScreen.route)
+                        "ความเป็นส่วนตัว" -> navController.navigate(Screen.PrivacyScreen.route)
                     }
                 },
                 modifier = Modifier
