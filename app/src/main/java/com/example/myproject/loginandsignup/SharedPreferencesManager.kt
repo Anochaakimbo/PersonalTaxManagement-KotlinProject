@@ -28,6 +28,8 @@ class SharedPreferencesManager(context: Context) {
         preferences.edit{remove(KEY_IS_LOGGED_IN) }
     }
 
+
+
     companion object{
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_USER_ID = "user_id"

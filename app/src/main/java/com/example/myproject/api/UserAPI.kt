@@ -4,13 +4,18 @@ import com.example.myproject.database.UserClass
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface UserAPI {
     interface UserAPI {
         @GET("search/{id}")
         fun searchUser(@Path("id") id: Int): Call<UserClass>
+
+        @PUT("updateUser/{id}") // 🔥 เพิ่ม API สำหรับอัปเดตข้อมูล
+        fun updateUser(@Path("id") id: Int, @Body user: UserClass): Call<Void>
     }
 
     companion object {
@@ -23,4 +28,7 @@ interface UserAPI {
             return userClient
         }
     }
+
 }
+
+

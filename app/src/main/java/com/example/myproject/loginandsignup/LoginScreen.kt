@@ -1,16 +1,15 @@
 package com.example.myproject.loginandsignup
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
-
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
@@ -41,7 +43,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
-
     val createClient = LoginAPI.create()
     val contextForToast = LocalContext.current.applicationContext
     lateinit var sharedPreferences: SharedPreferencesManager
@@ -100,7 +101,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
 
                 Text(
                     text = "ยินดีต้อนรับสู่ MyTaX",
-                    style = MaterialTheme.typography.headlineMedium,
                     color = Color.White
                 )
             }
@@ -147,7 +147,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
-                                    imageVector = if (passwordVisible) Icons.Default.Done else Icons.Default.Close ,
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                     contentDescription = if (passwordVisible) "Hide password" else "Show password"
                                 )
                             }
@@ -180,45 +180,32 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                             focusManager.clearFocus()
 
                             isError = !validateInput(email, password)
-
                             if (!isError) {
-                                // ตรวจสอบค่าแบบฮาร์ดโค้ด
-                                if (email == "test" && password == "test") {
-                                    sharedPreferences.isLoggedIn = true
-                                    sharedPreferences.userId = 999 // ตั้งค่า userId ปลอม
-                                    sharedPreferences.userEmail = email
+                                createClient.loginUser(email, password).enqueue(object : Callback<LoginClass> {
+                                    override fun onResponse(call: Call<LoginClass>, response: Response<LoginClass>) {
+                                        response.body()?.let { loginResponse ->
+                                            when (loginResponse.success) {
+                                                1 -> {
+                                                    sharedPreferences.isLoggedIn = true
+                                                    sharedPreferences.userId = response.body()!!.id
+                                                    sharedPreferences.userEmail = email
 
-                                    Toast.makeText(contextForToast, "Login successful", Toast.LENGTH_LONG).show()
-                                    onLoginSuccess()
-                                    navController.navigate(Screen.Home.route)
-                                } else {
-                                    // ใช้ API ปกติ
-                                    createClient.loginUser(email, password).enqueue(object : Callback<LoginClass> {
-                                        override fun onResponse(call: Call<LoginClass>, response: Response<LoginClass>) {
-                                            response.body()?.let { loginResponse ->
-                                                when (loginResponse.success) {
-                                                    1 -> {
-                                                        sharedPreferences.isLoggedIn = true
-                                                        sharedPreferences.userId = response.body()!!.id
-                                                        sharedPreferences.userEmail = email
-
-                                                        Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
-                                                        onLoginSuccess()
-                                                        navController.navigate(Screen.Home.route)
-                                                    }
-                                                    else -> {
-                                                        Toast.makeText(contextForToast, "Email or password is incorrect.", Toast.LENGTH_LONG).show()
-                                                    }
+                                                    Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
+                                                    onLoginSuccess()
+                                                    navController.navigate(Screen.Home.route)
                                                 }
-                                            } ?: run {
-                                                Toast.makeText(contextForToast, "Login failed. Please try again.", Toast.LENGTH_LONG).show()
+                                                else -> {
+                                                    Toast.makeText(contextForToast, "Email or password is incorrect.", Toast.LENGTH_LONG).show()
+                                                }
                                             }
+                                        } ?: run {
+                                            Toast.makeText(contextForToast, "Login failed. Please try again.", Toast.LENGTH_LONG).show()
                                         }
-                                        override fun onFailure(call: Call<LoginClass>, t: Throwable) {
-                                            Toast.makeText(contextForToast, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-                                        }
-                                    })
-                                }
+                                    }
+                                    override fun onFailure(call: Call<LoginClass>, t: Throwable) {
+                                        Toast.makeText(contextForToast, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+                                    }
+                                })
                             }
                         },
                         modifier = Modifier

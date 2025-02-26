@@ -235,6 +235,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
             )
         }
 
+
+
         item {
             Box(
                 modifier = Modifier
@@ -244,7 +246,11 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
             ) {
                 Button(
                     onClick = {
+                        sharedPreferences.clearUserLogin() // ลบ userId ออกจาก SharedPreferences
                         Toast.makeText(contextForToast, "Logged out!", Toast.LENGTH_SHORT).show()
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Profile.route) { inclusive = true } // ล้าง Stack เพื่อลดปัญหากด Back แล้วกลับมา Profile
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -261,6 +267,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
         }
     }
 }
+
+
 
 @Composable
 fun ProfileSection(title: String, items: List<Pair<String, Int>>,
