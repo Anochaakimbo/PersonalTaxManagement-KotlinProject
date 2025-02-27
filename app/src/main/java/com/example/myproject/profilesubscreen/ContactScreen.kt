@@ -1,6 +1,8 @@
 package com.example.myproject.profilesubscreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,60 +16,96 @@ import androidx.navigation.NavController
 
 @Composable
 fun ContactUsScreen(navController: NavController) {
-    var subject by remember { mutableStateOf(TextFieldValue("")) } // หัวข้อ
-    var details by remember { mutableStateOf(TextFieldValue("")) } // รายละเอียด
+    var subject by remember { mutableStateOf(TextFieldValue("")) }
+    var details by remember { mutableStateOf(TextFieldValue("")) }
 
-    Column(
+    // พื้นหลังสีเขียวด้านบน
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(Color(0xFF00C09E))
     ) {
-        Text(
-            text = "ติดต่อเรา",
-            fontSize = 24.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // ช่องกรอกหัวข้อ
-        OutlinedTextField(
-            value = subject,
-            onValueChange = { subject = it },
-            label = { Text("หัวข้อ") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // ช่องกรอกรายละเอียด
-        OutlinedTextField(
-            value = details,
-            onValueChange = { details = it },
-            label = { Text("รายละเอียด") },
-            modifier = Modifier.fillMaxWidth().height(150.dp),
-            maxLines = 5
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // ปุ่มส่ง
-        Button(
-            onClick = {
-                // ฟังก์ชั่นส่งข้อมูล เช่น ส่งไปยัง server หรือแสดงการยืนยัน
-            },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "ส่ง")
-        }
+            // Header
+            Column(
+                modifier = Modifier
+                    .padding(top = 40.dp, bottom = 40.dp)
+                    .padding(horizontal = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "ติดต่อเรา",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White
+                )
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            // พื้นหลังสีขาวโค้งมน
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ContactTextField("หัวข้อ", subject) { subject = it }
+                    ContactTextField("รายละเอียด", details, isMultiline = true) { details = it }
 
-        // ปุ่มย้อนกลับ
-        Button(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "ย้อนกลับ")
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // ปุ่มส่งข้อมูล
+                    Button(
+                        onClick = {
+                            // ฟังก์ชันส่งข้อมูล เช่น ส่งไปยัง server หรือแสดงการยืนยัน
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C09E)),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("ส่ง")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // ปุ่มย้อนกลับ
+                    TextButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text("ย้อนกลับ", color = Color.Gray)
+                    }
+                }
+            }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ContactTextField(label: String, value: TextFieldValue, isMultiline: Boolean = false, onValueChange: (TextFieldValue) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label, color = Color(0xff757575)) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+            .height(if (isMultiline) 150.dp else 56.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            containerColor = Color(0xFFE8F5F1),
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = Color(0xFF00C09E)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        maxLines = if (isMultiline) 5 else 1
+    )
 }

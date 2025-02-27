@@ -62,6 +62,7 @@ import com.example.myproject.profilesubscreen.EditScreen
 import retrofit2.Callback
 import retrofit2.Response
 
+
 @Composable
 fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
     val contextForToast  = LocalContext.current.applicationContext
@@ -221,7 +222,6 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
             ProfileSection(
                 title = "การช่วยเหลือ",
                 items = listOf(
-                    "การช่วยเหลือและสนับสนุน" to R.drawable.help,
                     "ติดต่อเรา" to R.drawable.conversation,
                     "ความเป็นส่วนตัว" to R.drawable.unlock
                 ),
@@ -283,7 +283,7 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
 
 
 {
-
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,7 +308,6 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
                         "เปลี่ยนภาษา" -> navController.navigate("language_screen")
                         "ความปลอดภัย" -> navController.navigate(Screen.SecureScreen.route)
                         "ธีม" -> navController.navigate("theme_screen")
-                        "การช่วยเหลือและสนับสนุน" -> navController.navigate("support_screen")
                         "ติดต่อเรา" -> navController.navigate(Screen.ContactScreen.route)
                         "ความเป็นส่วนตัว" -> navController.navigate(Screen.PrivacyScreen.route)
                     }
@@ -341,7 +340,16 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
                     )
                     if (text == "การแจ้งเตือน") {
                         Spacer(modifier = Modifier.weight(1f))
-                        TextButton(onClick = { onNotificationToggle(!notificationEnabled) }) {
+                        TextButton(
+                            onClick = {
+                                val newState = !notificationEnabled
+                                onNotificationToggle(newState)
+
+                                // ✅ แสดง Toast ตามสถานะใหม่
+                                val message = if (newState) "เปิดการแจ้งเตือน" else "ปิดการแจ้งเตือน"
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
                             Text(
                                 text = if (notificationEnabled) "เปิด" else "ปิด",
                                 color = Color.Blue
