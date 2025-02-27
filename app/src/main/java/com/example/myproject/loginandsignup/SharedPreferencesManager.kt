@@ -28,6 +28,15 @@ class SharedPreferencesManager(context: Context) {
         preferences.edit{remove(KEY_IS_LOGGED_IN) }
     }
 
+    fun saveProfileImageUri(imageUri: String) {
+        preferences.edit().putString("profile_image", imageUri).apply()
+    }
+
+    fun getProfileImageUri(): String? {
+        return preferences.getString("profile_image", null)
+    }
+
+
 
 
     companion object{

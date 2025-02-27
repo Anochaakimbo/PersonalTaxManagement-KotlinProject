@@ -19,4 +19,5 @@ data class UserClass(
 
     @Expose
     @SerializedName("gender") val gender : String
+
 )
