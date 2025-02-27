@@ -1,36 +1,29 @@
-package com.example.myproject.screen
+package com.example.myproject.mainscreen
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myproject.R
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaxAddScreen(navController: NavController) {
+fun HomeScreen(navController: NavController) {
     var isDrawerOpen by remember { mutableStateOf(false) }
-    val contextForToast = LocalContext.current.applicationContext
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -41,12 +34,7 @@ fun TaxAddScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                "โปรไฟล์", // เปลี่ยนเป็นชื่อที่ต้องการ
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp
-                            )
+                            Text("จ่ายภาษีเพิ่ม")
                         }
                     },
                     actions = {
@@ -55,14 +43,14 @@ fun TaxAddScreen(navController: NavController) {
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
-                                contentDescription = "Notifications",
-                                tint = Color.Black
+                                contentDescription = "Notifications",tint = Color.Black
                             )
                         }
                         IconButton(onClick = { isDrawerOpen = !isDrawerOpen }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu Icon", tint = Color.Black)
+                            Icon(Icons.Default.Menu, contentDescription = "Menu Icon",tint = Color.Black)
                         }
                     },
+
                     colors = TopAppBarDefaults.smallTopAppBarColors(
                         containerColor = Color(0xFF00D09E)
                     )
@@ -79,15 +67,14 @@ fun TaxAddScreen(navController: NavController) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(text = "TaxAdd Screen")
-                        Button(
-                            onClick = {
-                                Toast.makeText(contextForToast, "TaxAdd", Toast.LENGTH_SHORT).show()
-                            }
-                        ) {
-                            Text(text = "Click", fontSize = 25.sp)
-                        }
+                        Text(text = "Notification Screen Content")
                     }
+
+                    CustomButton(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(y = (-10).dp, x = (-16).dp)
+                    )
                 }
             }
         )
@@ -109,7 +96,7 @@ fun TaxAddScreen(navController: NavController) {
                 Column {
                     NavigationDrawerItem(
                         label = { Text("Home") },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home Icon", tint = Color.Black) },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home Icon",tint = Color.Black) },
                         selected = false,
                         onClick = {
                             isDrawerOpen = false
@@ -118,7 +105,7 @@ fun TaxAddScreen(navController: NavController) {
                     )
                     NavigationDrawerItem(
                         label = { Text("Profile") },
-                        icon = { Icon(Icons.Default.Person, contentDescription = "Profile Icon", tint = Color.Black) },
+                        icon = { Icon(Icons.Default.Person, contentDescription = "Profile Icon",tint = Color.Black) },
                         selected = false,
                         onClick = {
                             isDrawerOpen = false
@@ -144,3 +131,48 @@ fun TaxAddScreen(navController: NavController) {
         }
     }
 }
+
+@Composable
+fun CustomButton(modifier: Modifier = Modifier) {
+    Button(
+        onClick = { },
+        modifier = modifier
+            .padding(16.dp)
+            .height(40.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFA5)),
+        elevation = ButtonDefaults.buttonElevation(0.dp),
+        border = BorderStroke(2.dp, Color.Black)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = "2568", color = Color.Black)
+            Icon(Icons.Default.Person, contentDescription = "User Icon", tint = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun CustomButton() {
+    Button(
+        onClick = { },
+        modifier = Modifier
+            .padding(16.dp)
+            .height(40.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BFA5)),
+        elevation = ButtonDefaults.buttonElevation(0.dp),
+        border = BorderStroke(2.dp, Color.Black)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = "2568", color = Color.Black)
+            Icon(Icons.Default.Person, contentDescription = "User Icon", tint = Color.Black)
+        }
+    }
+}
+

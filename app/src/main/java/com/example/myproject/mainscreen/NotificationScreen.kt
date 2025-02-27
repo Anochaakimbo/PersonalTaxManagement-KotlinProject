@@ -1,4 +1,4 @@
-package com.example.myproject.screen
+package com.example.myproject.mainscreen
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
