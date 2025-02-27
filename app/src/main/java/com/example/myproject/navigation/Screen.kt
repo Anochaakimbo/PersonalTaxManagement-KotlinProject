@@ -14,4 +14,9 @@ sealed class Screen(val route: String, val name: String, @DrawableRes val icon: 
     data object AddIncome : Screen(route = "addincome_screen", name = "", icon = R.drawable.menu)
     data object Register : Screen(route = "register_screen", name = "Register",icon = R.drawable.menu)
     data object Forgetpassword : Screen(route = "forgetpassword_screen", name = "Forgetpassword",icon = R.drawable.menu)
+    data object Showalldocument : Screen(route = "Showalldocument_screen", name = "",icon = R.drawable.receipt)
+    data object SaveDocument : Screen(route = "savedocument_screen", name = "", icon = R.drawable.receipt)
+    data object Seedetaildocument : Screen(route = "Seedetaildocument_screen", name = "", icon = R.drawable.receipt)
+
+
 }
