@@ -40,6 +40,7 @@ import com.example.myproject.components.TopAppBar
 
 
 
+
 @Composable
 fun TaxSavingScreen(navController: NavHostController) {
     Scaffold(
@@ -203,27 +204,157 @@ fun LifeInsuranceScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Filled.Favorite, // ใช้ Icon ที่สื่อถึงชีวิต/ความรัก/ความห่วงใย
+            imageVector = Icons.Filled.Favorite,
             contentDescription = "Life Insurance Icon",
             modifier = Modifier.size(48.dp),
             tint = Color(0xFF6200EE)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "ประกันชีวิตออมทรัพย์", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = "ประกันชีวิตออมทรัพย์",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "เลือกจากแผนประกันที่เหมาะสมกับคุณ", fontSize = 16.sp)
+        Text(
+            text = "เลือกจากแผนประกันที่เหมาะสมกับคุณ",
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        InsuranceProductDetails(navController)
+
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(
-            onClick = { /* คุณสามารถเพิ่ม logic การนำทางดูลายละเอียดเพิ่มได้ */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE))
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .width(100.dp)
+                .height(40.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
         ) {
-            Text(text = "ดูรายละเอียดเพิ่มเติม", color = Color.White)
+            Text(text = "กลับ", color = Color.White, fontSize = 16.sp)
         }
+    }
+}
+
+@Composable
+fun InsuranceProductDetails(navController: NavHostController) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .padding(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_insurance_company_logo),
+                    contentDescription = "Insurance Company Logo",
+                    modifier = Modifier.size(56.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "FWD", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "ประกันชีวิตออมทรัพย์ Easy E-Save 10/5", fontSize = 16.sp)
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Tag(text = "ประกันชีวิต", color = Color(0xFF34C759))
+                Tag(text = "รับประกันภัยทันที", color = Color(0xFF34C759))
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_shield),
+                        contentDescription = "Shield Icon",
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = "ทุนประกัน", fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "฿74,000", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_growth),
+                        contentDescription = "Growth Icon",
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = "ผลตอบแทนเฉลี่ย", fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "2.09% ต่อปี", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = "จ่าย 5 ปี ปีละ", fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = "฿49,424", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = { /* Handle button click */ },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF34C759))
+            ) {
+                Text(text = "เลือกแผนนี้", color = Color.White, fontSize = 16.sp)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Center the "กลับ" button
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clickable { navController.popBackStack() }
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@Composable
+fun Tag(text: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .background(color, RoundedCornerShape(16.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(text = text, color = Color.White, fontSize = 12.sp)
     }
 }
 
@@ -253,8 +384,27 @@ fun PensionInsuranceScreen(navController: NavHostController) {
         ) {
             Text(text = "ดูรายละเอียดเพิ่มเติม", color = Color.White)
         }
+        // Button to go back without saving
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .width(100.dp)
+                .height(40.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            ) }
     }
 }
+
+
 
 @Composable
 fun HealthInsuranceScreen(navController: NavHostController) {
@@ -282,6 +432,23 @@ fun HealthInsuranceScreen(navController: NavHostController) {
         ) {
             Text(text = "ดูรายละเอียดเพิ่มเติม", color = Color.White)
         }
+        // Button to go back without saving
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .width(100.dp)
+                .height(40.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            ) }
     }
 }
 
@@ -311,6 +478,23 @@ fun RMFFundScreen(navController: NavHostController) {
         ) {
             Text(text = "ดูรายละเอียดเพิ่มเติม", color = Color.White)
         }
+        // Button to go back without saving
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .width(100.dp)
+                .height(40.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            ) }
     }
 }
 
@@ -340,6 +524,23 @@ fun SSFFundScreen(navController: NavHostController) {
         ) {
             Text(text = "ดูรายละเอียดเพิ่มเติม", color = Color.White)
         }
+        // Button to go back without saving
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier
+                .width(100.dp)
+                .height(40.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Text(
+                text = "กลับ",
+                color = MaterialTheme.colorScheme.onSecondary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            ) }
     }
 }
 

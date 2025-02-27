@@ -10,6 +10,7 @@ import com.example.myproject.loginandsignup.ForgetPasswordScreen
 import com.example.myproject.loginandsignup.LoginScreen
 import com.example.myproject.loginandsignup.RegisterScreen
 import com.example.myproject.mainscreen.AddIncomeScreen
+import com.example.myproject.mainscreen.DocumentScreen
 import com.example.myproject.mainscreen.HealthInsuranceScreen
 import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.LifeInsuranceScreen
@@ -22,7 +23,8 @@ import com.example.myproject.mainscreen.SearchScreen
 //import com.example.myproject.mainscreen.SearchScreen
 import com.example.myproject.mainscreen.TaxDeductionScreen
 import com.example.myproject.mainscreen.TaxSavingScreen
-
+import com.example.myproject.mainscreen.UploadDocumentScreen
+import com.example.savedocument.SeeDocumentScreen
 
 
 @Composable
@@ -119,6 +121,21 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             SSFFundScreen(navController)
         }
 
+        composable(
+            route = "Showalldocument_screen"
+        ) {
+            DocumentScreen(navController)
+        }
+        composable(
+            route = Screen.SaveDocument.route
+        ) {
+            UploadDocumentScreen(navController)
+        }
+        composable(
+            route = Screen.Seedetaildocument.route
+        ) {
+            SeeDocumentScreen(navController)
+        }
 
     }
 }
