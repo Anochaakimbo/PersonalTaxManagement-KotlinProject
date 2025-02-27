@@ -5,60 +5,54 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.OutlinedButton
+import androidx.navigation.NavHostController
+import com.example.myproject.viewmodel.DocumentViewModel
+import com.example.myproject.api.DocumentItem
+
 @Composable
-fun DocumentScreen(navController: NavHostController) {
-    val documentList = listOf("เอกสาร A", "เอกสาร B", "เอกสาร C", "เอกสาร D") // รายการเอกสาร
+fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewModel = remember { DocumentViewModel() }) {
+    val documentList by viewModel.documents.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF0FFF0)) // สีพื้นหลัง
+            .background(Color(0xFFF0FFF0))
             .padding(16.dp)
     ) {
-        // **Row สำหรับปุ่มย้อนกลับ + ข้อความหัวข้อ + ปุ่มโปรไฟล์และเพิ่มเอกสาร**
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // **ปุ่มย้อนกลับ**
             IconButton(
                 onClick = { navController.popBackStack() }
             ) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
 
-            Spacer(modifier = Modifier.width(8.dp)) // เว้นระยะห่างระหว่างปุ่มกับข้อความ
+            Spacer(modifier = Modifier.width(8.dp))
 
-            // **ข้อความ "เก็บเอกสาร"**
             Text(
                 text = "เก็บเอกสาร",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF008000),
-                modifier = Modifier.weight(1f) // ให้ข้อความขยายเต็มที่ ดันไปทางซ้าย
+                modifier = Modifier.weight(1f)
             )
 
-            // **Column สำหรับปุ่มโปรไฟล์ + ปุ่มเพิ่มเอกสาร**
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                // ปุ่มโปรไฟล์
+            Column(horizontalAlignment = Alignment.End) {
                 OutlinedButton(
                     onClick = { /* เปิดหน้าข้อมูลผู้ใช้ */ },
                     shape = RoundedCornerShape(12.dp),
@@ -69,12 +63,11 @@ fun DocumentScreen(navController: NavHostController) {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "โปรไฟล์")
                 }
 
-                Spacer(modifier = Modifier.height(8.dp)) // เว้นระยะห่างระหว่างปุ่ม
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // ปุ่มเพิ่มเอกสาร **เพิ่ม onClick เพื่อไป UploadDocumentScreen**
                 Button(
                     onClick = { navController.navigate("savedocument_screen") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)), // สีเขียว
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("เพิ่มเอกสาร", color = Color.White)
@@ -82,41 +75,59 @@ fun DocumentScreen(navController: NavHostController) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp)) // เพิ่มระยะห่าง
+        Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(documentList) { namedocument ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(12.dp)
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (documentList.isEmpty()) {
+            Text(
+                text = "ไม่มีเอกสาร",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            LazyColumn {
+                items(documentList) { document ->
+                    DocumentItemView(navController, document)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DocumentItemView(navController: NavHostController, document: DocumentItem) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "ไฟล์: ${document.document_url}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "อัปโหลดเมื่อ: ${document.uploaded_at}",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = { navController.navigate("Seedetaildocument_screen") }
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            text = "ชื่อเอกสาร: $namedocument",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // ใช้ Row เพื่อดันปุ่มไปด้านขวา
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    navController.navigate("Seedetaildocument_screen")
-                                }
-                            ) {
-                                Text("ดูรายละเอียด", color = Color(0xFF008000))
-                            }
-                        }
-                    }
+                    Text("ดูรายละเอียด", color = Color(0xFF008000))
                 }
             }
         }
