@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,14 +60,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.bumptech.glide.Glide
 import com.example.myproject.R
 import com.example.myproject.api.UserAPI
+import com.example.myproject.database.UploadResponse
 import com.example.myproject.database.UserClass
+import com.example.myproject.database.UserProfileResponse
 import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.navigation.Screen
 import com.example.myproject.profilesubscreen.EditScreen
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -87,13 +93,11 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
     val createClient = UserAPI.create()
     val initialUser = UserClass(0,"","","","")
     var userItems by remember { mutableStateOf(initialUser) }
-    var logoutDialog by remember { mutableStateOf(false) }
-    var checkState by remember { mutableStateOf(false) }
     var notificationEnabled by remember { mutableStateOf(true) }
     var languageThai by remember { mutableStateOf(true) }
     var darkTheme by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
+    var imageUrl by remember { mutableStateOf<String?>(null) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
 
@@ -132,25 +136,47 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
 
     }
 
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            profileImageUri = it.toString()
+            uploadProfileImage(context, userId, it) // อัปโหลดไปยังเซิร์ฟเวอร์
+        }
+    }
 
-    LazyColumn( // ใช้ LazyColumn ให้สามารถเลื่อนได้ทั้งหมด
+    LaunchedEffect(userId) {
+        createClient.getUserProfile(userId).enqueue(object : Callback<UserProfileResponse> {
+            override fun onResponse(call: Call<UserProfileResponse>, response: Response<UserProfileResponse>) {
+                if (response.isSuccessful && response.body() != null) {
+                    imageUrl = response.body()!!.profile_image
+                }
+            }
+
+            override fun onFailure(call: Call<UserProfileResponse>, t: Throwable) {
+                Log.e("ProfileImage", "โหลดรูปโปรไฟล์ล้มเหลว: ${t.message}")
+            }
+        })
+    }
+
+
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF1FFF3)), // พื้นหลังของทั้งหน้า
+            .background(Color(0xFFF1FFF3)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(bottom = 80.dp)
     ) {
-        // ส่วนหัวโปรไฟล์
         item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp) // ปรับความสูง
-                    .background(Color(0xFF00BFA5)), // สีพื้นหลังส่วนหัว
+                    .height(280.dp)
+                    .background(Color(0xFF00BFA5)),
                 contentAlignment = Alignment.TopCenter
             ) {
                 Column(
-                    modifier = Modifier.padding(top = 50.dp), // เลื่อนรูปลงมา
+                    modifier = Modifier.padding(top = 50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
@@ -158,37 +184,17 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                             .size(120.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .border(2.dp, Color.White, CircleShape),
+                            .border(2.dp, Color.White, CircleShape)
+                            .clickable { imagePickerLauncher },
                         contentAlignment = Alignment.Center
                     ) {
-                        if (!profileImageUri.isNullOrEmpty()) {
-                            if (profileImageUri!!.startsWith("http")) {
-                                // ✅ โหลดรูปจากอินเทอร์เน็ต ถ้าเป็น URL
-                                Image(
-                                    painter = rememberAsyncImagePainter(profileImageUri),
-                                    contentDescription = "Profile Picture",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            } else {
-                                // ✅ โหลดรูปจากไฟล์ในเครื่อง ถ้าเป็น Local Path
-                                val file = File(profileImageUri!!)
-                                if (file.exists()) {
-                                    Image(
-                                        painter = rememberAsyncImagePainter(file),
-                                        contentDescription = "Profile Picture",
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                } else {
-                                    // ✅ แสดงรูป Default ถ้าไม่มีรูปในเครื่อง
-                                    Image(
-                                        painter = painterResource(id = R.drawable.profile_user),
-                                        contentDescription = "Default Profile Picture",
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
+                        if (!imageUrl.isNullOrEmpty()) {
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = "Profile Picture",
+                                modifier = Modifier.fillMaxSize()
+                            )
                         } else {
-                            // ✅ แสดงรูป Default ถ้าไม่มีค่า profileImageUri
                             Image(
                                 painter = painterResource(id = R.drawable.profile_user),
                                 contentDescription = "Default Profile Picture",
@@ -197,24 +203,12 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                         }
                     }
 
-
-                    // ✅ ปุ่มเปลี่ยนรูปโปรไฟล์
-                    Box(
-                        modifier = Modifier
-                            .offset(x = 40.dp, y = -30.dp)
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(2.dp, Color.White, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.edit_text),
-                            contentDescription = "Edit Profile",
-                            tint = Color.Black,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
+                    Text(
+                        text = "แตะเพื่อเปลี่ยนรูปโปรไฟล์",
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                     Text(
                         text = "${userItems.fname} ${userItems.lname}",
                         color = Color.White,
@@ -313,9 +307,74 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                     Text(text = "Logout", fontSize = 18.sp)
                 }
             }
+
+
             Spacer(modifier = Modifier.height(50.dp)) // เว้นช่องว่างล่างสุด
         }
     }
+}
+
+fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri) {
+    val createClient = UserAPI.create()
+    val contentResolver = context.contentResolver
+    val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
+    val file = File(context.cacheDir, "profile_image_${System.currentTimeMillis()}.jpg")
+
+    // ตรวจสอบว่า inputStream ไม่เป็น null
+    inputStream?.use { input ->
+        FileOutputStream(file).use { output ->
+            input.copyTo(output)
+        }
+    } ?: run {
+        Toast.makeText(context, "ไม่สามารถอ่านไฟล์รูปภาพ", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    // ตรวจสอบว่าไฟล์ถูกสร้างสำเร็จ
+    if (!file.exists() || file.length() == 0L) {
+        Toast.makeText(context, "ไฟล์รูปภาพไม่ถูกต้อง", Toast.LENGTH_SHORT).show()
+        return
+    }
+
+    val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+    val body = MultipartBody.Part.createFormData("profile_image", file.name, requestFile)
+
+    createClient.uploadProfileImage(userId, body).enqueue(object : Callback<UploadResponse> {
+    override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
+            if (response.isSuccessful && response.body()?.success == true) {
+                Toast.makeText(context, "อัปโหลดสำเร็จ!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "อัปโหลดล้มเหลว: ${response.message()}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<UploadResponse>, t: Throwable) {
+            Toast.makeText(context, "ข้อผิดพลาด: ${t.message}", Toast.LENGTH_SHORT).show()
+        }
+    })
+}
+
+fun loadProfileImage(context: Context, userId: Int, imageView: ImageView) {
+    val createClient = UserAPI.create()
+
+    createClient.getUserProfile(userId).enqueue(object : Callback<UserProfileResponse> {
+        override fun onResponse(call: Call<UserProfileResponse>, response: Response<UserProfileResponse>) {
+            if (response.isSuccessful && response.body() != null) {
+                val imageUrl = response.body()!!.profile_image
+
+                // ✅ โหลดรูปจาก URL เข้า ImageView
+                Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.profile_user) // รูป Placeholder
+                    .error(R.drawable.profile_user) // รูปแสดงเมื่อโหลดไม่สำเร็จ
+                    .into(imageView)
+            }
+        }
+
+        override fun onFailure(call: Call<UserProfileResponse>, t: Throwable) {
+            Toast.makeText(context, "โหลดรูปโปรไฟล์ล้มเหลว", Toast.LENGTH_SHORT).show()
+        }
+    })
 }
 
 

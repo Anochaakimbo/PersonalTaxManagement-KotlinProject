@@ -1,7 +1,9 @@
 package com.example.myproject.api
 
 import com.example.myproject.database.PasswordChangeRequest
+import com.example.myproject.database.UploadResponse
 import com.example.myproject.database.UserClass
+import com.example.myproject.database.UserProfileResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -29,14 +31,18 @@ interface UserAPI {
         @POST("change-password")
         fun changePassword(@Body request: PasswordChangeRequest): Call<Void>
 
-    }
+        @Multipart
+        @POST("uploadProfileImage/{id}")
+        fun uploadProfileImage(
+            @Path("id") userId: Int,
+            @Part profile_image: MultipartBody.Part
+        ): Call<UploadResponse>
 
-    @Multipart
-    @POST("uploadProfilePicture")
-    fun uploadProfilePicture(
-        @Part("userId") userId: RequestBody,
-        @Part image: MultipartBody.Part
-    ): Call<UserClass>
+        @GET("getUserProfile/{id}")
+        fun getUserProfile(@Path("id") userId: Int): Call<UserProfileResponse>
+
+
+    }
 
     companion object {
         fun create(): UserAPI {
