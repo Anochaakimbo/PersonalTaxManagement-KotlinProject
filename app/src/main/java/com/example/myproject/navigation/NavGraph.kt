@@ -83,11 +83,14 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         ) {
             UploadDocumentScreen(navController)
         }
-        composable(
-            route = Screen.Seedetaildocument.route
-        ) {
-            SeeDocumentScreen(navController)
+        composable("showall_screen") {
+            DocumentScreen(navController = navController)
         }
+        composable("Seedetaildocument_screen/{document_id}") { backStackEntry ->
+            val documentId = backStackEntry.arguments?.getString("document_id")?.toIntOrNull() ?: 1
+            SeeDocumentScreen(navController = navController, documentId = documentId)
+        }
+
 
 
 

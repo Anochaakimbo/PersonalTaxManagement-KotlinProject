@@ -1,8 +1,12 @@
 package com.example.savedocument
 
-
-
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,124 +20,71 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.myproject.viewmodel.DocumentViewModel
 
 @Composable
-fun SeeDocumentScreen(navController: NavHostController) {
-    var showDialog by remember { mutableStateOf(false) } // State สำหรับแสดง Dialog
+fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewModel: DocumentViewModel = viewModel()) {
+    var showDialog by remember { mutableStateOf(false) }
+    val documents by viewModel.documents.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(documentId) {
+        viewModel.fetchDocumentsById(documentId) // ใช้ documentId แทน userId
+    }
+
+    val document = documents.find { it.id == documentId }
+//    val imageUrl = document?.document_url?.let { "http://10.0.2.2:3000$it" }
+val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
+    Log.d("SeeDocumentScreen", "Document URL: ${document?.document_url}")
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF0FFF0)) // สีพื้นหลังอ่อน
+            .background(Color(0xFFF0FFF0))
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // ส่วนหัว
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // **ปุ่มย้อนกลับ**
-            IconButton(
-                onClick = { navController.popBackStack() }
-            ) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
-
-            Spacer(modifier = Modifier.width(8.dp)) // เว้นระยะห่างระหว่างปุ่มกับข้อความ
-
-            // **ข้อความ "เก็บเอกสาร"**
             Text(
-                text = "เก็บเอกสาร",
-                fontSize = 24.sp,
+                text = "ดูเอกสาร ID: $documentId",
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF008000),
-                modifier = Modifier.weight(1f) // ให้ข้อความขยายเต็มที่ ดันไปทางซ้าย
+                modifier = Modifier.weight(1f)
             )
-
-            // ปุ่มโปรไฟล์
-            OutlinedButton(
-                onClick = { /* เปิดหน้าข้อมูลผู้ใช้ */ },
-                shape = RoundedCornerShape(12.dp),
-                border = ButtonDefaults.outlinedButtonBorder
-            ) {
-                Text("2568")
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(imageVector = Icons.Default.Person, contentDescription = "โปรไฟล์")
-            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // กล่องแสดงเนื้อหาที่อัปโหลด
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.LightGray)
-        ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
             Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                Text("แสดงเนื้อหาของ ''")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // ปุ่มด้านล่าง
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { navController.popBackStack() }, // กลับไปที่หน้า DocumentScreen
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)), // สีเขียว
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.width(120.dp)
-            ) {
-                Text("เสร็จสิ้น", color = Color.Black)
-            }
-
-            Button(
-                onClick = { showDialog = true }, // เปิด Dialog เมื่อกดลบ
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red), // สีแดง
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.width(120.dp)
-            ) {
-                Text("ลบ", color = Color.Black)
-            }
-        }
-
-        // **Dialog แจ้งเตือนเมื่อกด "ลบ"**
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false }, // ปิด Dialog เมื่อคลิกด้านนอก
-                title = { Text("ยืนยันการลบ") },
-                text = { Text("ต้องการลบเอกสาร '' นี้หรือไม่?") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showDialog = false // ปิด Dialog
-                            // TODO: ใส่ฟังก์ชันลบเอกสารที่นี่
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-                    ) {
-                        Text("Yes", color = Color.White)
-                    }
-                },
-                dismissButton = {
-                    OutlinedButton(
-                        onClick = { showDialog = false } // ปิด Dialog
-                    ) {
-                        Text("No")
-                    }
+                if (imageUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(imageUrl),
+                        contentDescription = "รูปภาพของ Document $documentId",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text("ไม่มีรูปภาพ", fontSize = 16.sp, color = Color.DarkGray)
                 }
-            )
+            }
         }
     }
 }

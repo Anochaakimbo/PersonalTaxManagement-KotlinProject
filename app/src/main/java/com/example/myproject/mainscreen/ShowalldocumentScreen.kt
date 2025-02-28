@@ -125,7 +125,7 @@ fun DocumentItemView(navController: NavHostController, document: DocumentItem) {
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(
-                    onClick = { navController.navigate("Seedetaildocument_screen") }
+                    onClick = { navController.navigate("Seedetaildocument_screen/${document.id}") } // ส่ง document.id ไปด้วย
                 ) {
                     Text("ดูรายละเอียด", color = Color(0xFF008000))
                 }
