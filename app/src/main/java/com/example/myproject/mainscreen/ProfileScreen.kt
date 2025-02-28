@@ -1,6 +1,7 @@
 package com.example.myproject.mainscreen
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -65,6 +66,10 @@ import com.example.myproject.database.UserClass
 import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.navigation.Screen
 import com.example.myproject.profilesubscreen.EditScreen
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -94,83 +99,6 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
 
     var profileImageUri by remember { mutableStateOf<String?>(null) }
 
-    fun saveImageToProjectFolder(context: Context, uri: Uri, userId: String, fname: String, lname: String): String {
-        val fileName = "${userId}_${fname}_${lname}.jpg" // ตั้งชื่อไฟล์เป็น userId_fname_lname.jpg
-        val file = File(context.filesDir, fileName) // เก็บใน Internal Storage ของแอป
-
-        return try {
-            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-            val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
-            inputStream?.close()
-            outputStream.close()
-            file.absolutePath // คืนค่าพาธของไฟล์
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ""
-        }
-    }
-
-    val imagePickerLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
-                val filePath = saveImageToProjectFolder(context, uri, userId.toString(), userItems.fname, userItems.lname) // บันทึกไฟล์
-
-                if (filePath.isNotEmpty()) {
-                    profileImageUri = filePath // ใช้รูปจากไฟล์ที่บันทึกไว้
-                    sharedPreferences.saveProfileImageUri(filePath) // บันทึกพาธลง SharedPreferences
-
-                    // ✅ อัปเดตพาธใน Database
-                    createClient.updateProfileImage(userId.toString(), filePath)
-                        .enqueue(object : Callback<Void> {
-                            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                                if (response.isSuccessful) {
-                                    Toast.makeText(context, "อัปโหลดรูปโปรไฟล์สำเร็จ", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    val errorBody = response.errorBody()?.string()
-                                    Log.e("ProfileUpload", "Error: $errorBody")
-                                    Toast.makeText(context, "อัปโหลดรูปโปรไฟล์ไม่สำเร็จ: $errorBody", Toast.LENGTH_LONG).show()
-                                }
-                            }
-
-                            override fun onFailure(call: Call<Void>, t: Throwable) {
-                                Toast.makeText(context, "เกิดข้อผิดพลาด: ${t.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        })
-                }
-            }
-        }
-
-
-
-
-    LaunchedEffect(userId) {
-        val savedFilePath = sharedPreferences.getProfileImageUri() // ดึงพาธจาก SharedPreferences
-        val file = File(savedFilePath)
-
-        if (file.exists()) {
-            profileImageUri = savedFilePath // ถ้ามีไฟล์ในเครื่อง ให้ใช้รูปจากเครื่อง
-        } else {
-            createClient.getProfileImage(userId.toString()).enqueue(object : Callback<Map<String, String>> {
-                override fun onResponse(call: Call<Map<String, String>>, response: Response<Map<String, String>>) {
-                    if (response.isSuccessful) {
-                        val dbPath = response.body()?.get("profileImageUri") ?: ""
-                        if (dbPath.isNotEmpty()) {
-                            profileImageUri = dbPath
-                            sharedPreferences.saveProfileImageUri(dbPath) // ✅ บันทึกไว้ใช้ภายหลัง
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<Map<String, String>>, t: Throwable) {
-                    Toast.makeText(context, "เกิดข้อผิดพลาดในการโหลดรูปโปรไฟล์", Toast.LENGTH_SHORT).show()
-                }
-            })
-        }
-    }
-
-    Log.d("ProfileUpload", "Sending userId: $userId, profileImageUri: $profileImageUri")
-
     LaunchedEffect(lifecycleState) {
         when (lifecycleState) {
             Lifecycle.State.DESTROYED -> {}
@@ -187,7 +115,8 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                                 response.body()!!.email,
                                 response.body()!!.fname,
                                 response.body()!!.lname,
-                                response.body()!!.gender)
+                                response.body()!!.gender,
+                                )
                         } else {
                             Toast.makeText(contextForToast, "DATA NOT FOUND", Toast.LENGTH_LONG).show()
                         }
@@ -276,8 +205,7 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                             .size(36.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .border(2.dp, Color.White, CircleShape)
-                            .clickable { imagePickerLauncher.launch("image/*") }, // เปิดตัวเลือกรูป
+                            .border(2.dp, Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
