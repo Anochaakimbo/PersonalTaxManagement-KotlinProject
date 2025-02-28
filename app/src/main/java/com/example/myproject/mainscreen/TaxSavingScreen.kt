@@ -363,7 +363,7 @@ fun RMFProductDetails(navController: NavHostController) {
     InsuranceDetailsCard(
         company = "SCB",
         productName = "กองทุน RMF Equity Growth",
-        coverage = "-",
+        coverage = "350,000",
         returnRate = "5.25% ต่อปี",
         annualPayment = "฿60,000"
     )
@@ -374,7 +374,7 @@ fun SSFProductDetails(navController: NavHostController) {
     InsuranceDetailsCard(
         company = "TMB",
         productName = "กองทุน SSF Global Equity",
-        coverage = "-",
+        coverage = "300,000",
         returnRate = "5.80% ต่อปี",
         annualPayment = "฿55,000"
     )
