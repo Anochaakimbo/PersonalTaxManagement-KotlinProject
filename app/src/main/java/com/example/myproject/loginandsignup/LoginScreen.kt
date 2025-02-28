@@ -43,7 +43,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
-    val myFont = FontFamily(Font(R.font.khaidao))
     val createClient = LoginAPI.create()
     val contextForToast = LocalContext.current.applicationContext
     lateinit var sharedPreferences: SharedPreferencesManager
@@ -102,7 +101,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
 
                 Text(
                     text = "ยินดีต้อนรับสู่ MyTaX",
-                    style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),
                     color = Color.White
                 )
             }

@@ -18,5 +18,6 @@ data class UserClass(
     @SerializedName("lname") val lname : String,
 
     @Expose
-    @SerializedName("gender") val gender : String
+    @SerializedName("gender") val gender : String,
+
 )
