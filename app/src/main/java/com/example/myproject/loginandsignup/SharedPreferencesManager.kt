@@ -25,9 +25,11 @@ class SharedPreferencesManager(context: Context) {
     }
 
     fun clearUserLogin(){
-        preferences.edit{remove(KEY_IS_LOGGED_IN) }
+        preferences.edit {
+            remove(KEY_IS_LOGGED_IN)
+            commit() // ✅ ใช้ commit() เพื่อให้ค่าถูกลบออกทันที
+        }
     }
-
 
 
 

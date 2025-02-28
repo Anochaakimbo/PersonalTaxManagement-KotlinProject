@@ -85,10 +85,11 @@ import java.io.InputStream
 
 
 @Composable
-fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
+fun ProfileScreen(navController: NavHostController, modifier: Modifier,onLogout: () -> Unit) {
     val contextForToast  = LocalContext.current.applicationContext
     lateinit var sharedPreferences : SharedPreferencesManager
     sharedPreferences = SharedPreferencesManager(contextForToast)
+    var isLoggedIn by remember { mutableStateOf(sharedPreferences.isLoggedIn) }
     val userId = sharedPreferences.userId ?: 0
     val createClient = UserAPI.create()
     val initialUser = UserClass(0,"","","","")
@@ -136,16 +137,24 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
 
     }
 
+    LaunchedEffect(Unit) {
+        isLoggedIn = sharedPreferences.isLoggedIn
+    }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             profileImageUri = it.toString()
-            uploadProfileImage(context, userId, it) // อัปโหลดไปยังเซิร์ฟเวอร์
+            uploadProfileImage(context, userId, it) { newImageUrl ->
+                imageUrl = newImageUrl // อัปโหลดไปยังเซิร์ฟเวอร์
+            }
         }
     }
 
+    // ✅ โหลดรูปเมื่อเปิดหน้าจอ
     LaunchedEffect(userId) {
+        val createClient = UserAPI.create()
         createClient.getUserProfile(userId).enqueue(object : Callback<UserProfileResponse> {
             override fun onResponse(call: Call<UserProfileResponse>, response: Response<UserProfileResponse>) {
                 if (response.isSuccessful && response.body() != null) {
@@ -154,7 +163,7 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
             }
 
             override fun onFailure(call: Call<UserProfileResponse>, t: Throwable) {
-                Log.e("ProfileImage", "โหลดรูปโปรไฟล์ล้มเหลว: ${t.message}")
+                Toast.makeText(context, "โหลดรูปโปรไฟล์ล้มเหลว", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -185,10 +194,10 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
                             .clip(CircleShape)
                             .background(Color.White)
                             .border(2.dp, Color.White, CircleShape)
-                            .clickable { imagePickerLauncher },
+                            .clickable { imagePickerLauncher.launch("image/*") }, // ✅ ใช้ MIME Type ที่ถูกต้อง
                         contentAlignment = Alignment.Center
                     ) {
-                        if (!imageUrl.isNullOrEmpty()) {
+                    if (!imageUrl.isNullOrEmpty()) {
                             AsyncImage(
                                 model = imageUrl,
                                 contentDescription = "Profile Picture",
@@ -290,10 +299,13 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
             ) {
                 Button(
                     onClick = {
-                        sharedPreferences.clearUserLogin() // ลบ userId ออกจาก SharedPreferences
+                        isLoggedIn = false
+                        sharedPreferences.clearUserLogin()
+                        onLogout()
+                        Log.d("DEBUG", "Logout สำเร็จ, เปลี่ยน isLoggedIn เป็น false")
                         Toast.makeText(contextForToast, "Logged out!", Toast.LENGTH_SHORT).show()
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Profile.route) { inclusive = true } // ล้าง Stack เพื่อลดปัญหากด Back แล้วกลับมา Profile
+                            popUpTo(Screen.Home.route) { inclusive = true }
                         }
                     },
                     modifier = Modifier
@@ -314,13 +326,12 @@ fun ProfileScreen(navController: NavHostController,modifier: Modifier) {
     }
 }
 
-fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri) {
+fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri, onUploadSuccess: (String) -> Unit) {
     val createClient = UserAPI.create()
     val contentResolver = context.contentResolver
     val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
     val file = File(context.cacheDir, "profile_image_${System.currentTimeMillis()}.jpg")
 
-    // ตรวจสอบว่า inputStream ไม่เป็น null
     inputStream?.use { input ->
         FileOutputStream(file).use { output ->
             input.copyTo(output)
@@ -330,7 +341,6 @@ fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri) {
         return
     }
 
-    // ตรวจสอบว่าไฟล์ถูกสร้างสำเร็จ
     if (!file.exists() || file.length() == 0L) {
         Toast.makeText(context, "ไฟล์รูปภาพไม่ถูกต้อง", Toast.LENGTH_SHORT).show()
         return
@@ -340,9 +350,23 @@ fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri) {
     val body = MultipartBody.Part.createFormData("profile_image", file.name, requestFile)
 
     createClient.uploadProfileImage(userId, body).enqueue(object : Callback<UploadResponse> {
-    override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
+        override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
             if (response.isSuccessful && response.body()?.success == true) {
                 Toast.makeText(context, "อัปโหลดสำเร็จ!", Toast.LENGTH_SHORT).show()
+
+                // ✅ โหลด URL รูปใหม่แล้วอัปเดต UI ทันที
+                createClient.getUserProfile(userId).enqueue(object : Callback<UserProfileResponse> {
+                    override fun onResponse(call: Call<UserProfileResponse>, response: Response<UserProfileResponse>) {
+                        if (response.isSuccessful && response.body() != null) {
+                            val newImageUrl = response.body()!!.profile_image
+                            onUploadSuccess(newImageUrl) // ✅ ส่งค่า URL ใหม่ไปอัปเดต imageUrl
+                        }
+                    }
+
+                    override fun onFailure(call: Call<UserProfileResponse>, t: Throwable) {
+                        Toast.makeText(context, "โหลดรูปโปรไฟล์ใหม่ล้มเหลว", Toast.LENGTH_SHORT).show()
+                    }
+                })
             } else {
                 Toast.makeText(context, "อัปโหลดล้มเหลว: ${response.message()}", Toast.LENGTH_SHORT).show()
             }
@@ -388,9 +412,6 @@ fun ProfileSection(title: String, items: List<Pair<String, Int>>,
                     onLanguageToggle: (Boolean) -> Unit,
                     darkTheme: Boolean,
                    onThemeToggle: (Boolean) -> Unit)
-
-
-
 {
     val context = LocalContext.current
     Column(

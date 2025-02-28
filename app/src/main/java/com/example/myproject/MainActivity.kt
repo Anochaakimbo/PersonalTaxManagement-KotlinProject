@@ -14,6 +14,7 @@ import com.example.myproject.components.MyBottomBar
 import com.example.myproject.navigation.NavGraph
 import com.example.myproject.ui.theme.MyProjectTheme
 import com.example.myproject.loginandsignup.SharedPreferencesManager
+import android.util.Log
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,24 +28,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Composable
 fun MyScreen() {
     val navController = rememberNavController()
-    var isLoggedIn by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
-    // ✅ ใช้ `rememberUpdatedState` เพื่อให้ UI อัปเดตทันที
     val sharedPreferences = remember { SharedPreferencesManager(context) }
 
-    // ✅ โหลดค่าการล็อกอินทุกครั้งที่รีเฟรช UI
-    LaunchedEffect(Unit) {
-        isLoggedIn = sharedPreferences.isLoggedIn
-    }
+    var isLoggedIn by remember { mutableStateOf(sharedPreferences.isLoggedIn) }
 
     Scaffold(
         bottomBar = {
             if (isLoggedIn) {
-                MyBottomBar(navController) // ✅ แสดงเฉพาะเมื่อเข้าสู่ระบบแล้ว
+                Log.d("DEBUG", "BottomBar แสดงผล")
+                MyBottomBar(navController)
             }
         }
     ) { innerPadding ->
@@ -52,9 +50,17 @@ fun MyScreen() {
             navController = navController,
             modifier = Modifier.padding(innerPadding),
             onLoginSuccess = {
-                isLoggedIn = true // ✅ อัปเดตสถานะเมื่อเข้าสู่ระบบ
+                Log.d("DEBUG", "Login สำเร็จ, เปลี่ยน isLoggedIn เป็น true")
+                isLoggedIn = true
+            },
+            onLogout = {
+                Log.d("DEBUG", "Logout สำเร็จ, เปลี่ยน isLoggedIn เป็น false")
+                isLoggedIn = false // ✅ บังคับอัปเดต UI
             }
         )
     }
 }
+
+
+
 

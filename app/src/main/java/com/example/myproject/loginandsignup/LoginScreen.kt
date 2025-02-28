@@ -65,7 +65,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
             else -> {}
         }
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()

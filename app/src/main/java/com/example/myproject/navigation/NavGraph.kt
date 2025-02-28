@@ -23,7 +23,7 @@ import com.example.myproject.profilesubscreen.SecureScreen
 
 
 @Composable
-fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess: () -> Unit){
+fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess: () -> Unit,onLogout: () -> Unit){
 
     NavHost(
         navController = navController,
@@ -48,7 +48,7 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         composable(
             route = Screen.Profile.route
         ){
-            ProfileScreen(navController,Modifier)
+            ProfileScreen(navController,Modifier,onLogout)
         }
         composable(
             route = Screen.TaxDeduction.route
