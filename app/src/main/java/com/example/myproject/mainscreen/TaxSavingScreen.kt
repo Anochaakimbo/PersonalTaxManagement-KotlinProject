@@ -162,13 +162,21 @@ fun RecommendationsSection() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             context.startActivity(intent)
         }
+
         RecommendationItem(R.drawable.ic_fund_rmf, "K-ESSGI-ThaiESG", "ผลตอบแทนเฉลี่ย", "2.38% ต่อปี") {
             val url = "https://www.kasikornasset.com/"
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             context.startActivity(intent)
         }
+
+        RecommendationItem(R.drawable.ic_saving_plan, "SCB Easy Saving Plan", "ผลตอบแทนเฉลี่ย", "1.85% ต่อปี") {
+            val url = "https://www.scb.co.th/"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+        }
     }
 }
+
 
 @Composable
 fun RecommendationItem(icon: Int, title: String, subtitle: String, rate: String, onClick: () -> Unit) {
