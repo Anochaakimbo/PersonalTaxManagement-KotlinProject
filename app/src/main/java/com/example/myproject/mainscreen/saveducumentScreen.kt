@@ -83,7 +83,7 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(450.dp)
                 .clickable { imagePickerLauncher.launch("image/*") },
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Color.LightGray)
@@ -135,7 +135,7 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
                     // ✅ เปลี่ยนหน้าไป ShowAllDocumentScreen ทันทีหลังจากกด
                     navController.navigate("ShowAllDocument_Screen")
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF008000)),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.width(120.dp),
                 enabled = selectedImageUri != null
@@ -148,7 +148,7 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
 
             Button(
                 onClick = { navController.popBackStack() },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.width(120.dp)
             ) {

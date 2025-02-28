@@ -12,10 +12,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class DocumentViewModel : ViewModel() {
     private val _documents = MutableStateFlow<List<DocumentItem>>(emptyList())
@@ -29,12 +32,10 @@ class DocumentViewModel : ViewModel() {
 
     private val api = DocumentAPI.create()
 
-    // ✅ ดึงเอกสารอัตโนมัติเมื่อ ViewModel ถูกสร้าง (ใช้ user_id = 1 เป็นค่าเริ่มต้น)
     init {
         fetchDocuments(1)
     }
 
-    // ✅ ดึงเอกสารของ user_id ที่กำหนด
     fun fetchDocuments(userId: Int) {
         viewModelScope.launch {
             try {
@@ -50,40 +51,31 @@ class DocumentViewModel : ViewModel() {
         }
     }
 
-    // ✅ อัปโหลดไฟล์ไปยังเซิร์ฟเวอร์
     fun uploadFile(context: Context, userId: Int, uri: Uri) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                Log.d("Upload", "เริ่มอัปโหลดไฟล์: userId=$userId, uri=$uri")
-
                 val file = uriToFile(context, uri)
                 val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-                val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile) // ✅ ใช้ "file"
+                val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-                Log.d("Upload", "กำลังส่ง API: userId=$userId, file=${file.name}")
-                val response = api.uploadDocument(userId, filePart)
-
-                Log.d("Upload", "อัปโหลดสำเร็จ: $response")
-                fetchDocuments(userId) // รีเฟรชรายการเอกสาร
+                api.uploadDocument(userId, filePart)
+                fetchDocuments(userId)
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "อัปโหลดไฟล์ล้มเหลว"
-                Log.e("Upload", "เกิดข้อผิดพลาด: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-
-    // ✅ ลบไฟล์จากเซิร์ฟเวอร์
     fun deleteFile(userId: Int, fileId: Int) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 api.deleteFile(fileId)
-                fetchDocuments(userId) // รีเฟรชรายการเอกสาร
+                fetchDocuments(userId)
             } catch (e: Exception) {
                 e.printStackTrace()
                 _errorMessage.value = "ลบไฟล์ล้มเหลว"
@@ -92,12 +84,13 @@ class DocumentViewModel : ViewModel() {
             }
         }
     }
+
     fun fetchDocumentsById(documentId: Int) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 val document = api.getDocumentById(documentId)
-                _documents.value = listOf(document) // เก็บไฟล์เดียวที่ดึงมา
+                _documents.value = listOf(document)
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -106,7 +99,38 @@ class DocumentViewModel : ViewModel() {
         }
     }
 
-    // ✅ แปลง Uri เป็นไฟล์เพื่ออัปโหลด
+    fun formatThaiDate(isoDate: String?): String {
+        if (isoDate.isNullOrEmpty()) return "ไม่มีข้อมูลวันที่"
+
+        return try {
+            Log.d("DateFormat", "Raw Date: $isoDate") // ✅ Debug
+
+            val formatter = DateTimeFormatter.ISO_DATE_TIME
+            val localDateTime = LocalDateTime.parse(isoDate, formatter) // แปลงวันที่
+            val localDate = localDateTime.atZone(ZoneId.systemDefault()).toLocalDate()
+
+            val thaiMonths = arrayOf(
+                "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+            )
+
+            val day = localDate.dayOfMonth
+            val month = thaiMonths[localDate.monthValue - 1] // แปลงเดือนเป็นไทย
+            val year = localDate.year + 543 // แปลง ค.ศ. ➝ พ.ศ.
+
+            val formattedDate = "$day $month $year"
+            Log.d("DateFormat", "Formatted Date: $formattedDate") // ✅ Debug
+
+            formattedDate
+        } catch (e: Exception) {
+            Log.e("DateFormat", "Error parsing date: ${e.message}")
+            "แปลงวันที่ไม่ได้"
+        }
+    }
+
+
+
+
     private fun uriToFile(context: Context, uri: Uri): File {
         val inputStream = context.contentResolver.openInputStream(uri)!!
         val file = File(context.cacheDir, "upload_file")

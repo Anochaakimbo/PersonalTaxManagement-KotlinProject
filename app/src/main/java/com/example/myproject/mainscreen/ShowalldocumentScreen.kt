@@ -1,5 +1,7 @@
 package com.example.myproject.mainscreen
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.myproject.viewmodel.DocumentViewModel
 import com.example.myproject.api.DocumentItem
 
@@ -26,19 +29,20 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
     val documentList by viewModel.documents.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    var selectedYear by remember { mutableStateOf("ทั้งหมด") } // ค่าปีที่เลือก
+    val years = listOf("ทั้งหมด","2568", "2567", "2566", "2565", "2564") // รายการปี
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF0FFF0))
+            .background(Color(0xFFF5F5F5)) // พื้นหลังสะอาดตา
             .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = { navController.popBackStack() }
-            ) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
 
@@ -52,26 +56,40 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
                 modifier = Modifier.weight(1f)
             )
 
-            Column(horizontalAlignment = Alignment.End) {
+            // 🔹 Dropdown เลือกปี
+            var expanded by remember { mutableStateOf(false) }
+            Box {
                 OutlinedButton(
-                    onClick = { /* เปิดหน้าข้อมูลผู้ใช้ */ },
+                    onClick = { expanded = true },
                     shape = RoundedCornerShape(12.dp),
                     border = ButtonDefaults.outlinedButtonBorder
                 ) {
-                    Text("2568")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(imageVector = Icons.Default.Person, contentDescription = "โปรไฟล์")
+                    Text(selectedYear)
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { navController.navigate("savedocument_screen") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
-                    shape = RoundedCornerShape(12.dp)
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
                 ) {
-                    Text("เพิ่มเอกสาร", color = Color.White)
+                    years.forEach { year ->
+                        DropdownMenuItem(
+                            text = { Text(year) },
+                            onClick = {
+                                selectedYear = year
+                                expanded = false
+                            }
+                        )
+                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = { navController.navigate("savedocument_screen") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("เพิ่มเอกสาร", color = Color.White)
             }
         }
 
@@ -90,8 +108,10 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
             )
         } else {
             LazyColumn {
-                items(documentList) { document ->
-                    DocumentItemView(navController, document)
+                items(documentList.filter { doc ->
+                    selectedYear == "ทั้งหมด" || doc.uploaded_at.contains(selectedYear)
+                }) { document ->
+                    DocumentItemView(navController, document, viewModel)
                 }
             }
         }
@@ -99,37 +119,100 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
 }
 
 @Composable
-fun DocumentItemView(navController: NavHostController, document: DocumentItem) {
+fun DocumentItemView(navController: NavHostController, document: DocumentItem, viewModel: DocumentViewModel) {
+    var showDialog by remember { mutableStateOf(false) } // ตัวแปรเก็บสถานะของ Dialog
+    val imageUrl = "http://10.0.2.2:3000${document.document_url}"
+    val formattedDate = viewModel.formatThaiDate(document.uploaded_at)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp)
+            .height(IntrinsicSize.Min) // ลดความสูงให้พอดีกับเนื้อหา
+            .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "ไฟล์: ${document.document_url}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "อัปโหลดเมื่อ: ${document.uploaded_at}",
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = { navController.navigate("Seedetaildocument_screen/${document.id}") } // ส่ง document.id ไปด้วย
+            if (document.document_url.isNotEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = "รูปภาพของ Document ${document.id}",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color.LightGray, shape = RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "เอกสารที่: ${document.id}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Text(
+                    text = "อัปโหลดเมื่อ: $formattedDate",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("ดูรายละเอียด", color = Color(0xFF008000))
+                    TextButton(
+                        onClick = { navController.navigate("Seedetaildocument_screen/${document.id}") }
+                    ) {
+                        Text("ดูรายละเอียด", color = Color(0xFF008000))
+                    }
+
+                    TextButton(
+                        onClick = { showDialog = true }
+                    ) {
+                        Text("ลบ", color = Color.Red)
+                    }
                 }
             }
         }
+    }
+
+    // 🔹 **Dialog ยืนยันการลบ**
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("ยืนยันการลบ", fontWeight = FontWeight.Bold) },
+            text = { Text("คุณต้องการลบเอกสารนี้หรือไม่?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteFile(userId = 1, fileId = document.id)
+                        showDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("ลบ", color = Color.White)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { showDialog = false },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("ยกเลิก", color = Color.Black)
+                }
+            }
+        )
     }
 }

@@ -32,12 +32,11 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
     val isLoading by viewModel.isLoading.collectAsState()
 
     LaunchedEffect(documentId) {
-        viewModel.fetchDocumentsById(documentId) // ใช้ documentId แทน userId
+        viewModel.fetchDocumentsById(documentId)
     }
 
     val document = documents.find { it.id == documentId }
-//    val imageUrl = document?.document_url?.let { "http://10.0.2.2:3000$it" }
-val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
+    val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
     Log.d("SeeDocumentScreen", "Document URL: ${document?.document_url}")
 
     Column(
@@ -47,6 +46,7 @@ val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // 🔹 Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -55,7 +55,7 @@ val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
             Text(
-                text = "ดูเอกสาร ID: $documentId",
+                text = "ดูเอกสารที่: $documentId",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF008000),
@@ -65,17 +65,18 @@ val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // 🔹 Loading / Image Display
         if (isLoading) {
             CircularProgressIndicator()
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(450.dp)
                     .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                if (imageUrl != null) {
+                if (imageUrl.isNotEmpty()) {
                     Image(
                         painter = rememberAsyncImagePainter(imageUrl),
                         contentDescription = "รูปภาพของ Document $documentId",
@@ -86,5 +87,59 @@ val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 🔹 ปุ่มลบ + ปุ่มเสร็จสิ้น
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            // 🔥 ปุ่มลบ (แสดง Dialog ก่อนลบ)
+            Button(
+                onClick = { showDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.width(120.dp)
+            ) {
+                Text("ลบ", color = Color.Black)
+            }
+
+            // ✅ ปุ่มเสร็จสิ้น
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.width(120.dp)
+            ) {
+                Text("เสร็จสิ้น", color = Color.Black)
+            }
+        }
+    }
+
+    // 🔹 Dialog ยืนยันก่อนลบ
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("ยืนยันการลบ") },
+            text = { Text("คุณต้องการลบเอกสารนี้หรือไม่?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteFile(userId = 1, fileId = documentId) // ลบไฟล์
+                        showDialog = false
+                        navController.popBackStack() // กลับไปหน้าก่อน
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("ลบ", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("ยกเลิก")
+                }
+            }
+        )
     }
 }
