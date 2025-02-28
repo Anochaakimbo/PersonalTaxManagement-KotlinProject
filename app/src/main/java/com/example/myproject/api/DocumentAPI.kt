@@ -1,50 +1,26 @@
 package com.example.myproject.api
 
-import com.example.myproject.database.Document
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.*
+import retrofit2.http.GET
 
 interface DocumentAPI {
-
-    // 📌 ดึงเอกสารทั้งหมดของผู้ใช้
-    @GET("user-files/{user_id}")
-    fun getUserFiles(
-        @Path("user_id") userId: String
-    ): Call<List<Document>>
-
-    // 📌 อัปโหลดเอกสาร
-    @Multipart
-    @POST("upload-document/{user_id}")
-    fun uploadDocument(
-        @Path("user_id") userId: String,
-        @Part file: MultipartBody.Part
-    ): Call<Document>
-
-    // 📌 อัปโหลดรูปภาพ
-    @Multipart
-    @POST("upload-image/{user_id}")
-    fun uploadImage(
-        @Path("user_id") userId: String,
-        @Part file: MultipartBody.Part
-    ): Call<Document>
-
-    // 📌 ลบเอกสารหรือรูปภาพ
-    @DELETE("delete-file/{file_id}")
-    fun deleteFile(
-        @Path("file_id") fileId: String
-    ): Call<Document>
+    @GET("user-files/1") // ต้องตรงกับ API ของ Backend
+    suspend fun getDocuments(): List<DocumentItem>
 
     companion object {
         fun create(): DocumentAPI {
             return Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:3000/")
+                .baseUrl("http://10.0.2.2:3000/") // ใช้ IP จำลอง Emulator
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(DocumentAPI::class.java)
         }
     }
 }
+
+data class DocumentItem(
+    val id: Int,
+    val document_url: String,
+    val uploaded_at: String
+)
