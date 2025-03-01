@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -49,7 +50,10 @@ fun TaxButtomSheet(navConroller: NavHostController, onDismiss: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            Text(text = "เพิ่มรายได้ / ค่าลดหย่อน", fontSize = 20.sp, color = Color.Black)
+            Text(text = "เพิ่มรายได้ / ค่าลดหย่อน",
+                fontSize = 20.sp,
+                color = Color.Black,
+                )
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
@@ -64,7 +68,8 @@ fun TaxButtomSheet(navConroller: NavHostController, onDismiss: () -> Unit) {
                     modifier = Modifier.weight(1f).padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDAF7A6))
                 ) {
-                    Text("รายได้", color = Color.Black)
+                    Text("รายได้", color = Color.Black,
+                        style = MaterialTheme.typography.titleLarge,)
                 }
 
                 Button(
@@ -74,7 +79,8 @@ fun TaxButtomSheet(navConroller: NavHostController, onDismiss: () -> Unit) {
                     modifier = Modifier.weight(1f).padding(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA6E1FA))
                 ) {
-                    Text("ค่าลดหย่อน", color = Color.Black)
+                    Text("ค่าลดหย่อน", color = Color.Black,
+                        style = MaterialTheme.typography.titleLarge,)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 

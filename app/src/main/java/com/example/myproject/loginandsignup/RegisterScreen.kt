@@ -27,6 +27,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -36,6 +38,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.myproject.R
 import com.example.myproject.api.RegisterAPI
 import com.example.myproject.database.UserClass
 import com.example.myproject.navigation.Screen
@@ -59,6 +62,7 @@ fun RegisterScreen(navController: NavHostController) {
     var selectedGender by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+    val myFont = FontFamily(Font(R.font.ibmplexsansthai_regular))
 
     Box(
         modifier = Modifier
@@ -95,7 +99,7 @@ fun RegisterScreen(navController: NavHostController) {
 
                 Text(
                     text = "สมัครสมาชิก",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),
                     color = Color.White
                 )
             }
@@ -311,7 +315,9 @@ fun RegisterScreen(navController: NavHostController) {
                         ),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("สมัครสมาชิก")
+                        Text(text ="สมัครสมาชิก",
+                            style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),)
+
                     }
 
                     Row(

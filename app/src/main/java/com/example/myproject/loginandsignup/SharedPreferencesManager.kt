@@ -20,17 +20,28 @@ class SharedPreferencesManager(context: Context) {
         get() = preferences.getString(KEY_USER_EMAIL,null)
         set(value) = preferences.edit().putString(KEY_USER_EMAIL,value).apply()
 
+    var selectedYear: Int
+        get() = preferences.getInt(KEY_SELECTED_YEAR, 2567) // ค่าเริ่มต้นเป็น 2567
+        set(value) = preferences.edit().putInt(KEY_SELECTED_YEAR, value).apply()
+
+
     fun clearUserAll(){
         preferences.edit {clear()}
     }
 
     fun clearUserLogin(){
-        preferences.edit{remove(KEY_IS_LOGGED_IN) }
+        preferences.edit {
+            remove(KEY_IS_LOGGED_IN)
+            commit() // ✅ ใช้ commit() เพื่อให้ค่าถูกลบออกทันที
+        }
     }
+
+
 
     companion object{
         private const val KEY_IS_LOGGED_IN = "is_logged_in"
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_SELECTED_YEAR = "selected_year"
     }
 }
