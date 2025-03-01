@@ -40,16 +40,17 @@ import retrofit2.Response
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val contextForToast = LocalContext.current.applicationContext
-    var selectedYear by remember { mutableStateOf("2567") } // ตัวแปรเก็บปีที่เลือก
-    var expanded by remember { mutableStateOf(false) } // สำหรับเปิด/ปิดเมนูเลือกปี
+    val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    var selectedYear by remember { mutableStateOf(sharedPreferencesManager.selectedYear) }
+    var expanded by remember { mutableStateOf(false) } // เปิด/ปิดเมนูเลือกปี
 
     Scaffold(
         topBar = {
             com.example.myproject.components.TopAppBar(
                 navController = navController,
                 modifier = Modifier.zIndex(1f)
-            ) // ✅ เพิ่ม TopAppBar
+            )
         },
         containerColor = Color.White
     ) { paddingValues ->
@@ -60,18 +61,15 @@ fun HomeScreen(navController: NavHostController) {
             contentAlignment = Alignment.Center
         ) {
             Column(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .align(Alignment.Center),
+                modifier = Modifier.wrapContentSize().align(Alignment.Center),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // เพิ่มกล่องสำหรับจัดวางปุ่มเลือกปี
+                // กล่องสำหรับเลือกปี
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(end = 16.dp, top = 8.dp)
                 ) {
-                    // ปุ่มเลือกปีที่มีกรอบโค้งมนที่มุมขวาบน
                     Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -99,33 +97,28 @@ fun HomeScreen(navController: NavHostController) {
                         modifier = Modifier
                             .width(120.dp)
                             .background(Color.White),
-                        // กำหนดจุดอ้างอิงสำหรับการวางตำแหน่ง
                         offset = DpOffset(x = (-16).dp, y = 0.dp)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text(text = "2567") },
-                            onClick = {
-                                selectedYear = "2567"
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(text = "2568") },
-                            onClick = {
-                                selectedYear = "2568"
-                                expanded = false
-                            }
-                        )
+                        listOf(2567, 2568).forEach { year ->
+                            DropdownMenuItem(
+                                text = { Text(text = year.toString()) },
+                                onClick = {
+                                    selectedYear = year
+                                    sharedPreferencesManager.selectedYear = year // บันทึกค่า
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(22.dp)) // เพิ่มระยะห่างด้านบนของเนื้อหา
+                Spacer(modifier = Modifier.height(22.dp))
 
-                // Box ที่มี "เริ่มคำนวณภาษี"
+                // กล่อง "เริ่มคำนวณภาษี"
                 Box(
                     modifier = Modifier
                         .size(width = 250.dp, height = 200.dp)
-                        .background(Color(0xFF00695C), shape = RoundedCornerShape(16.dp)), // เพิ่ม shape เพื่อกำหนดความโค้งของขอบ
+                        .background(Color(0xFF00695C), shape = RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
@@ -135,9 +128,7 @@ fun HomeScreen(navController: NavHostController) {
                         Image(
                             painter = painterResource(id = R.drawable.money_transfer_test),
                             contentDescription = "Tax Icon",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(bottom = 8.dp)
+                            modifier = Modifier.size(100.dp).padding(bottom = 8.dp)
                         )
                         Text(
                             text = "เริ่มคำนวณภาษี",
@@ -148,11 +139,10 @@ fun HomeScreen(navController: NavHostController) {
 
                         Button(
                             onClick = {
-                                Toast.makeText(contextForToast, "Click Start", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Click Start", Toast.LENGTH_LONG).show()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                            shape = RoundedCornerShape(20.dp), // ทำให้ปุ่มโค้งมนมากขึ้น
-                            modifier = Modifier
+                            shape = RoundedCornerShape(20.dp)
                         ) {
                             Text(
                                 text = "START",
@@ -166,7 +156,7 @@ fun HomeScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 ContentSection {
-                    Toast.makeText(contextForToast, "เลือกเมนู", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "เลือกเมนู", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -197,9 +187,7 @@ fun ContentSection(onItemClick: () -> Unit) {
             }
         }
 
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
 
         item {
             Row(
@@ -214,13 +202,12 @@ fun ContentSection(onItemClick: () -> Unit) {
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.Blue,
-                    modifier = Modifier.clickable {
-                    }
+                    modifier = Modifier.clickable { }
                 )
             }
         }
 
-        items(5) {
+        items(1) {
             Card(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
@@ -231,7 +218,6 @@ fun ContentSection(onItemClick: () -> Unit) {
                 TaxItem(title = "วางแผนภาษี", showArrow = false, onItemClick)
             }
         }
-
     }
 }
 
