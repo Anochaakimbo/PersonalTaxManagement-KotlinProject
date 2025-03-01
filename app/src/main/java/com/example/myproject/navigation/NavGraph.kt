@@ -1,5 +1,6 @@
 package com.example.myproject.navigation
 
+import HomeScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -11,11 +12,10 @@ import com.example.myproject.loginandsignup.LoginScreen
 import com.example.myproject.loginandsignup.RegisterScreen
 import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.mainscreen.AddIncomeScreen
-import com.example.myproject.mainscreen.HomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
 import com.example.myproject.mainscreen.ProfileScreen
 import com.example.myproject.mainscreen.SearchScreen
-import com.example.myproject.mainscreen.TaxDeductionScreen
+import com.example.myproject.mainscreen.AddDeductionScreen
 import com.example.myproject.profilesubscreen.ContactUsScreen
 import com.example.myproject.profilesubscreen.EditScreen
 import com.example.myproject.profilesubscreen.PrivacyAndPermissionsScreen
@@ -53,7 +53,7 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         composable(
             route = Screen.TaxDeduction.route
         ) {
-            TaxDeductionScreen(navController)
+            AddDeductionScreen(navController)
         }
         composable(
             route = Screen.Login.route
