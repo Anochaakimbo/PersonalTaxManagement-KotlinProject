@@ -24,3 +24,4 @@ data class DocumentItem(
     val document_url: String,
     val uploaded_at: String
 )
+

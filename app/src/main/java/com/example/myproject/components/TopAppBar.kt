@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.myproject.navigation.Screen
@@ -35,11 +34,9 @@ fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
         else -> "แอปของฉัน" // ค่าเริ่มต้น
     }
 
-    // ✅ ใช้ zIndex(-1f) เพื่อให้มันอยู่ข้างหลังสุด
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .zIndex(-1f) // ทำให้ TopBar อยู่ข้างหลัง
+        modifier = Modifier.fillMaxWidth()
+        // เอา zIndex ออก
     ) {
         LargeTopAppBar(
             title = {
@@ -60,3 +57,4 @@ fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
         )
     }
 }
+
