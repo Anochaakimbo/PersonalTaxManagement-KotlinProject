@@ -40,6 +40,12 @@ interface DocumentAPI {
                 .create(DocumentAPI::class.java)
         }
     }
+
+    @GET("user-files/{user_id}")
+    suspend fun getDocuments(
+        @Path("user_id") userId: Int,
+        @Query("year") year: String? = null
+    ): List<DocumentItem>
 }
 
 // ✅ โครงสร้างข้อมูลเอกสาร

@@ -28,14 +28,14 @@ import com.example.myproject.api.DocumentItem
 fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewModel = remember { DocumentViewModel() }) {
     val documentList by viewModel.documents.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val selectedYear by viewModel.selectedYear.collectAsState()
 
-    var selectedYear by remember { mutableStateOf("ทั้งหมด") } // ค่าปีที่เลือก
-    val years = listOf("ทั้งหมด","2568", "2567", "2566", "2565", "2564") // รายการปี
+    val years = listOf("ทั้งหมด", "2568", "2567", "2566", "2565", "2564") // รายการปี
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5)) // พื้นหลังสะอาดตา
+            .background(Color(0xFFF5F5F5))
             .padding(16.dp)
     ) {
         Row(
@@ -56,7 +56,7 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
                 modifier = Modifier.weight(1f)
             )
 
-            // 🔹 Dropdown เลือกปี
+            // Dropdown เลือกปี
             var expanded by remember { mutableStateOf(false) }
             Box {
                 OutlinedButton(
@@ -74,7 +74,7 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
                         DropdownMenuItem(
                             text = { Text(year) },
                             onClick = {
-                                selectedYear = year
+                                viewModel.updateSelectedYear(year)
                                 expanded = false
                             }
                         )
@@ -108,9 +108,7 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
             )
         } else {
             LazyColumn {
-                items(documentList.filter { doc ->
-                    selectedYear == "ทั้งหมด" || doc.uploaded_at.contains(selectedYear)
-                }) { document ->
+                items(documentList) { document ->
                     DocumentItemView(navController, document, viewModel)
                 }
             }
