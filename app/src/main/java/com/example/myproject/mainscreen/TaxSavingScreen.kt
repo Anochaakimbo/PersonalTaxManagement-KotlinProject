@@ -482,5 +482,3 @@ fun Tag(text: String, color: Color) {
         Text(text = text, color = Color.White, fontSize = 12.sp)
     }
 }
-
-

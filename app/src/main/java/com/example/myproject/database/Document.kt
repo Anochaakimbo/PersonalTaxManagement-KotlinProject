@@ -20,7 +20,10 @@ data class Document(
     @SerializedName("file_type") val fileType: String, // "document" หรือ "image"
 
     @Expose
-    @SerializedName("uploaded_at") val uploadedAt: String
+    @SerializedName("uploaded_at") val uploadedAt: String,
+
+    @Expose
+    @SerializedName("year")val year: Int
 ) : Parcelable
 
 

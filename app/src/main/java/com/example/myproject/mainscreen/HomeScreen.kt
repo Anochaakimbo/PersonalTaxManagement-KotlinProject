@@ -1,162 +1,241 @@
-package com.example.myproject.mainscreen
-
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myproject.R
-//import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
-import com.example.myproject.components.MyBottomBar
-
-//import com.example.myproject.MyBottomBar
+import com.example.myproject.R
+import com.example.myproject.loginandsignup.SharedPreferencesManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val context = LocalContext.current.applicationContext
+    val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    var selectedYear by remember { mutableStateOf(sharedPreferencesManager.selectedYear) }
+    var expanded by remember { mutableStateOf(false) } // เปิด/ปิดเมนูเลือกปี
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            com.example.myproject.components.TopAppBar(
+                navController = navController,
+                modifier = Modifier.zIndex(1f)
+            )
+        },
+        containerColor = Color.White
+    ) { paddingValues ->
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.6f)
-                .align(Alignment.BottomCenter)
-                .background(
-                    color = Color.White,
-                    shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
-                )
-        )
-
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .wrapContentSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
-            // กล่อง "เริ่มคำนวณภาษี"
-            Box(
-                modifier = Modifier
-                    .size(width = 300.dp, height = 250.dp)
-                    .background(Color(0xFF00695C), shape = RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.wrapContentSize().align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    Image(
-                        painter = painterResource(id = R.drawable.money_transfer_test),
-                        contentDescription = "Tax Icon",
-                        modifier = Modifier.size(100.dp).padding(bottom = 8.dp)
-                    )
-                    Text(text = "เริ่มคำนวณภาษี", color = Color.White, fontSize = 20.sp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            Toast.makeText(context, "เริ่มคำนวณภาษี", Toast.LENGTH_SHORT).show()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        modifier = Modifier.clip(RoundedCornerShape(10.dp))
+                // กล่องสำหรับเลือกปี
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 16.dp, top = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                            .clickable { expanded = !expanded }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "START", color = Color(0xFF00695C), fontSize = 16.sp)
+                        Text(
+                            text = "$selectedYear",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Filled.ArrowDropDown,
+                            contentDescription = "Dropdown Year"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .width(120.dp)
+                            .background(Color.White),
+                        offset = DpOffset(x = (-16).dp, y = 0.dp)
+                    ) {
+                        listOf(2567, 2568).forEach { year ->
+                            DropdownMenuItem(
+                                text = { Text(text = year.toString()) },
+                                onClick = {
+                                    selectedYear = year
+                                    sharedPreferencesManager.selectedYear = year // บันทึกค่า
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                // กล่อง "เริ่มคำนวณภาษี"
+                Box(
+                    modifier = Modifier
+                        .size(width = 250.dp, height = 200.dp)
+                        .background(Color(0xFF00695C), shape = RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.money_transfer_test),
+                            contentDescription = "Tax Icon",
+                            modifier = Modifier.size(100.dp).padding(bottom = 8.dp)
+                        )
+                        Text(
+                            text = "เริ่มคำนวณภาษี",
+                            color = Color.White,
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = {
+                                Toast.makeText(context, "Click Start", Toast.LENGTH_LONG).show()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text(
+                                text = "START",
+                                color = Color(0xFF00695C),
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ContentSection {
+                    Toast.makeText(context, "เลือกเมนู", Toast.LENGTH_SHORT).show()
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ContentSection { Toast.makeText(context, "เลือกเมนู", Toast.LENGTH_SHORT).show() }
-        }
-
-        Scaffold(bottomBar = { MyBottomBar(navController, context) }, containerColor = Color.Transparent) { paddingValues ->
-            Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {}
         }
     }
 }
 
 @Composable
 fun ContentSection(onItemClick: () -> Unit) {
-    Column {
-        Text(text = "แนะนำ", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp))
-
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            TaxItem(title = "เริ่มคำนวณภาษี", showArrow = true, onItemClick)
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "Featured", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    LazyColumn {
+        item {
             Text(
-                text = "ดูทั้งหมด >",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Blue,
-                modifier = Modifier.clickable { /* Handle navigation */ }
+                text = "แนะนำ",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
 
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            TaxItem(title = "วางแผนภาษี", showArrow = false, onItemClick)
+        item {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                TaxItem(title = "เริ่มคำนวณภาษี", showArrow = true, onItemClick)
+            }
         }
 
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            TaxItem(title = "วางแผนภาษี", showArrow = false, onItemClick)
+        item { Spacer(modifier = Modifier.height(8.dp)) }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "Featured", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "ดูทั้งหมด >",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Blue,
+                    modifier = Modifier.clickable { }
+                )
+            }
         }
 
+        items(1) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                TaxItem(title = "วางแผนภาษี", showArrow = false, onItemClick)
+            }
+        }
     }
 }
 
 @Composable
 fun TaxItem(title: String, showArrow: Boolean, onItemClick: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp).clickable { onItemClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onItemClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = painterResource(id = R.drawable.money_transfer_test),
             contentDescription = "Money Icon",
-            modifier = Modifier.size(48.dp).padding(end = 12.dp)
+            modifier = Modifier
+                .size(48.dp)
+                .padding(end = 12.dp)
         )
 
         Text(
@@ -176,6 +255,3 @@ fun TaxItem(title: String, showArrow: Boolean, onItemClick: () -> Unit) {
         }
     }
 }
-
-
-

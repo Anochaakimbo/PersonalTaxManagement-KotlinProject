@@ -1,28 +1,30 @@
 package com.example.savedocument
 
-import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.myproject.R
 import com.example.myproject.viewmodel.DocumentViewModel
 
 @Composable
@@ -30,14 +32,27 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
     var showDialog by remember { mutableStateOf(false) }
     val documents by viewModel.documents.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val context = LocalContext.current
 
+    // ตรวจสอบข้อมูลใน Logcat
     LaunchedEffect(documentId) {
+        Log.d("SeeDocumentScreen", "Fetching document with ID: $documentId")
         viewModel.fetchDocumentsById(documentId)
     }
 
     val document = documents.find { it.id == documentId }
-    val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
-    Log.d("SeeDocumentScreen", "Document URL: ${document?.document_url}")
+
+    // ถ้า URL ไม่มี http:// นำหน้า ให้เพิ่มเข้าไป
+    val imageUrl = document?.document_url?.let { url ->
+        if (!url.startsWith("http")) {
+            "http://10.0.2.2:3000$url"
+        } else {
+            url
+        }
+    } ?: ""
+
+    Log.d("SeeDocumentScreen", "Document: $document")
+    Log.d("SeeDocumentScreen", "Image URL: $imageUrl")
 
     Column(
         modifier = Modifier
@@ -67,7 +82,28 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
 
         // 🔹 Loading / Image Display
         if (isLoading) {
-            CircularProgressIndicator()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(450.dp)
+                    .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (imageUrl.isNotEmpty()) {
+            // การดูดีบั๊กรูปภาพที่โหลด
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "รูปภาพของ Document $documentId",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(450.dp)
+                    .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Fit,
+//                error = painterResource(id = R.drawable.error_image),
+//                loading = { CircularProgressIndicator() }
+            )
         } else {
             Box(
                 modifier = Modifier
@@ -76,15 +112,7 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
                     .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                if (imageUrl.isNotEmpty()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUrl),
-                        contentDescription = "รูปภาพของ Document $documentId",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Text("ไม่มีรูปภาพ", fontSize = 16.sp, color = Color.DarkGray)
-                }
+                Text("ไม่พบรูปภาพ", fontSize = 16.sp, color = Color.DarkGray)
             }
         }
 

@@ -3,6 +3,8 @@ package com.example.myproject.mainscreen
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,19 +20,39 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.DpOffset
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.myproject.viewmodel.DocumentViewModel
 import com.example.myproject.api.DocumentItem
+import com.example.myproject.loginandsignup.SharedPreferencesManager
+import com.example.myproject.navigation.Screen
 
 @Composable
-fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewModel = remember { DocumentViewModel() }) {
+fun DocumentScreen(
+    navController: NavHostController,
+    userId: Int, // เพิ่ม userId จาก NavController
+    viewModel: DocumentViewModel = remember { DocumentViewModel() }
+) {
+    val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    val selectedYear = remember { mutableStateOf(sharedPreferencesManager.selectedYear) } // เก็บค่า selectedYear ใน Screen
+    var expanded by remember { mutableStateOf(false) } // เปิด/ปิดเมนูเลือกปี
+
     val documentList by viewModel.documents.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val selectedYear by viewModel.selectedYear.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
-    val years = listOf("ทั้งหมด", "2568", "2567", "2566", "2565", "2564") // รายการปี
+    val years = listOf(2568, 2567, 2566, 2565, 2564) // รายการปี
+
+    // แก้ไขให้เรียก fetchDocuments(userId, selectedYear.value)
+    LaunchedEffect(selectedYear.value) {
+        viewModel.fetchDocuments(userId, selectedYear.value)
+    }
 
     Column(
         modifier = Modifier
@@ -56,25 +78,32 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
                 modifier = Modifier.weight(1f)
             )
 
-            // Dropdown เลือกปี
-            var expanded by remember { mutableStateOf(false) }
             Box {
-                OutlinedButton(
-                    onClick = { expanded = true },
-                    shape = RoundedCornerShape(12.dp),
-                    border = ButtonDefaults.outlinedButtonBorder
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                        .clickable { expanded = !expanded }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    Text(selectedYear)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "${selectedYear.value}", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "Dropdown Year")
+                    }
                 }
+
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(Color.White)
                 ) {
                     years.forEach { year ->
                         DropdownMenuItem(
-                            text = { Text(year) },
+                            text = { Text(year.toString()) },
                             onClick = {
-                                viewModel.updateSelectedYear(year)
+                                selectedYear.value = year
+                                sharedPreferencesManager.selectedYear = year
                                 expanded = false
                             }
                         )
@@ -85,7 +114,9 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(
-                onClick = { navController.navigate("savedocument_screen") },
+                onClick = {
+                    navController.navigate("${Screen.SaveDocument.route}/${selectedYear.value}")
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -97,6 +128,12 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
 
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = Color.Red,
+                modifier = Modifier.padding(16.dp)
+            )
         } else if (documentList.isEmpty()) {
             Text(
                 text = "ไม่มีเอกสาร",
@@ -118,6 +155,7 @@ fun DocumentScreen(navController: NavHostController, viewModel: DocumentViewMode
 
 @Composable
 fun DocumentItemView(navController: NavHostController, document: DocumentItem, viewModel: DocumentViewModel) {
+
     var showDialog by remember { mutableStateOf(false) } // ตัวแปรเก็บสถานะของ Dialog
     val imageUrl = "http://10.0.2.2:3000${document.document_url}"
     val formattedDate = viewModel.formatThaiDate(document.uploaded_at)
@@ -170,7 +208,9 @@ fun DocumentItemView(navController: NavHostController, document: DocumentItem, v
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
-                        onClick = { navController.navigate("Seedetaildocument_screen/${document.id}") }
+                        onClick = {
+                            navController.navigate("${Screen.Seedetaildocument.route}/${document.id}")
+                        }
                     ) {
                         Text("ดูรายละเอียด", color = Color(0xFF008000))
                     }

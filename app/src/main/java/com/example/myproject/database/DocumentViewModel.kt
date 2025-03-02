@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
@@ -20,39 +21,23 @@ import java.time.format.DateTimeFormatter
 
 class DocumentViewModel : ViewModel() {
     private val _documents = MutableStateFlow<List<DocumentItem>>(emptyList())
+    private val _selectedYear = MutableStateFlow<Int?>(null)
 
-    // เพิ่ม StateFlow สำหรับเก็บปีที่เลือก
-    private val _selectedYear = MutableStateFlow("ทั้งหมด")
-    val selectedYear: StateFlow<String> = _selectedYear
-
-    // ปรับ documents ให้แสดงผลตามปีที่เลือก
-    val documents: StateFlow<List<DocumentItem>> = _selectedYear
-        .flatMapLatest { year ->
-            if (year == "ทั้งหมด") {
-                _documents
-            } else {
-                flow {
-                    emit(_documents.value.filter { doc ->
-                        try {
-                            val formatter = DateTimeFormatter.ISO_DATE_TIME
-                            val localDateTime = LocalDateTime.parse(doc.uploaded_at, formatter)
-                            val docYear = localDateTime.year.toString()
-                            // แปลง ค.ศ. เป็น พ.ศ.
-                            val thaiYear = (localDateTime.year + 543).toString()
-                            thaiYear == year
-                        } catch (e: Exception) {
-                            Log.e("DocumentViewModel", "Error parsing date: ${doc.uploaded_at}", e)
-                            false
-                        }
-                    })
-                }
-            }
+    // ฟังก์ชันสำหรับกรองเอกสารตามปีที่เลือก
+    val documents: StateFlow<List<DocumentItem>> = combine(
+        _documents,
+        _selectedYear
+    ) { documents, selectedYear ->
+        if (selectedYear == null) {
+            documents // ถ้าไม่ได้เลือกปีให้แสดงทั้งหมด
+        } else {
+            documents.filter { it.year == selectedYear } // กรองตามปีที่เลือก
         }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -62,33 +47,42 @@ class DocumentViewModel : ViewModel() {
 
     private val api = DocumentAPI.create()
 
-    init {
-        fetchDocuments(1)
-    }
-
-    // ฟังก์ชันสำหรับอัพเดตปีที่เลือก
-    fun updateSelectedYear(year: String) {
+    // ฟังก์ชันสำหรับอัพเดตปีที่เลือกจาก Screen
+    fun updateSelectedYear(year: Int) {
         _selectedYear.value = year
-        fetchDocuments(1, year)  // ใช้ userId = 1 หรือค่าที่เหมาะสม
+        Log.d("DocumentViewModel", "Selected Year Updated: $year")
+        fetchDocuments(1, year) // รีเฟรชข้อมูลเมื่อปีเปลี่ยน
     }
 
-    fun fetchDocuments(userId: Int, year: String? = null) {
+    // ฟังก์ชันดึงข้อมูลเอกสาร
+    fun fetchDocuments(userId: Int, year: Int? = null) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                _documents.value = api.getDocuments(userId, if (year == "ทั้งหมด") null else year)
+                val yearString = year?.toString()
+                Log.d("DocumentViewModel", "Fetching documents for userId: $userId, year: $year")
+
+                _documents.value = if (yearString != null) {
+                    api.getDocumentsByUserAndYear(userId, year)
+                } else {
+                    emptyList()
+                }
+                Log.d("DocumentViewModel", "Fetched documents: ${_documents.value}")
+
                 _errorMessage.value = null
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "ไม่สามารถโหลดเอกสารได้"
+                _errorMessage.value = "ไม่สามารถโหลดเอกสารได้: ${e.message}"
+                Log.e("DocumentViewModel", "Error fetching documents: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
+
     // ฟังก์ชันอัปโหลดไฟล์
-    fun uploadFile(context: Context, userId: Int, uri: Uri) {
+    fun uploadFile(context: Context, userId: Int, uri: Uri, year: Int) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
@@ -96,11 +90,18 @@ class DocumentViewModel : ViewModel() {
                 val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
                 val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-                api.uploadDocument(userId, filePart)
-                fetchDocuments(userId)
+                // สร้าง RequestBody สำหรับปี
+                val yearBody = year.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // เรียก API เพื่ออัปโหลดไฟล์
+                api.uploadDocument(userId, filePart, yearBody)
+
+                // รีเฟรชรายการเอกสารหลังจากอัปโหลด
+                fetchDocuments(userId, _selectedYear.value)
+
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "อัปโหลดไฟล์ล้มเหลว"
+                _errorMessage.value = "อัปโหลดไฟล์ล้มเหลว: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -113,25 +114,53 @@ class DocumentViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 api.deleteFile(fileId)
-                fetchDocuments(userId)
+                fetchDocuments(userId, _selectedYear.value) // รีเฟรชรายการหลังจากลบ
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "ลบไฟล์ล้มเหลว"
+                _errorMessage.value = "ลบไฟล์ล้มเหลว: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    // ฟังก์ชันดึงข้อมูลเอกสารตาม ID
+    // ฟังก์ชัน fetchDocumentsById ที่แก้ไข
     fun fetchDocumentsById(documentId: Int) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
+                Log.d("DocumentViewModel", "Fetching document with ID: $documentId")
+
                 val document = api.getDocumentById(documentId)
+                Log.d("DocumentViewModel", "Fetched document: $document")
+
+                // อัพเดท documents state เพื่อให้ UI แสดงผล
                 _documents.value = listOf(document)
+                _errorMessage.value = null
             } catch (e: Exception) {
                 e.printStackTrace()
+                Log.e("DocumentViewModel", "Error fetching document: ${e.message}")
+                _errorMessage.value = "ไม่สามารถโหลดเอกสารได้: ${e.message}"
+                // เพื่อเป็นการป้องกัน ไม่ล้างข้อมูลเดิมถ้าเกิด error
+                if (_documents.value.isEmpty()) {
+                    _documents.value = emptyList()
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+    fun fetchDocumentsByUserAndYear(userId: Int, year: Int) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _documents.value = api.getDocumentsByUserAndYear(userId, year)
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _errorMessage.value = "ไม่สามารถโหลดเอกสารได้: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -177,3 +206,6 @@ class DocumentViewModel : ViewModel() {
         return file
     }
 }
+
+
+

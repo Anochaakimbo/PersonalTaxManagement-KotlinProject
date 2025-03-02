@@ -1,5 +1,8 @@
 package com.example.myproject.mainscreen
 
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -11,7 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -20,6 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.myproject.R
+import com.example.myproject.api.IncomeAPI
+import com.example.myproject.database.IncomeResponse
+import com.example.myproject.database.InsertIncomeClass
+import com.example.myproject.loginandsignup.SharedPreferencesManager
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 @Composable
 fun AddIncomeScreen(navController: NavHostController) {
@@ -27,15 +40,24 @@ fun AddIncomeScreen(navController: NavHostController) {
 
     NavHost(navController, startDestination = "income_grid") {
         composable("income_grid") { IncomeGrid(navController) }
-        composable("income_details/{incomeName}") { backStackEntry ->
+        composable("income_details/{incomeName}/{incomeTypeId}") { backStackEntry ->
             val incomeName = backStackEntry.arguments?.getString("incomeName") ?: ""
-            IncomeDetailsScreen(navController, incomeName)
+            val incomeTypeId = backStackEntry.arguments?.getString("incomeTypeId")?.toIntOrNull() ?: 0
+            IncomeDetailsScreen(navController, incomeName, incomeTypeId)
         }
     }
 }
 
 @Composable
 fun IncomeGrid(navController: NavHostController) {
+    val incomeTypeMap = mapOf(
+        "เงินเดือน" to 1,
+        "งานฟรีแลนซ์" to 2,
+        "ขายของออนไลน์" to 3,
+        "ลงทุนหุ้น" to 4,
+        "กำไรจากคริปโต" to 5,
+        "ดอกเบี้ยเงินฝาก" to 6
+    )
     val incomeSources = listOf(
         "เงินเดือน" to R.drawable.work,
         "งานฟรีแลนซ์" to R.drawable.business,
@@ -51,6 +73,7 @@ fun IncomeGrid(navController: NavHostController) {
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "เพิ่มแหล่งรายได้",
             fontWeight = FontWeight.Bold,
@@ -70,7 +93,10 @@ fun IncomeGrid(navController: NavHostController) {
                 IncomeCard(
                     text = name,
                     iconRes = icon,
-                    onClick = { navController.navigate("income_details/${name}") }
+                    onClick = {
+                        val incomeTypeId = incomeTypeMap[name] ?: 0  // ✅ กำหนดค่าตามประเภท
+                        navController.navigate("income_details/${name}/$incomeTypeId")
+                    }
                 )
             }
         }
@@ -111,8 +137,14 @@ fun IncomeCard(text: String, @DrawableRes iconRes: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
+fun IncomeDetailsScreen(navController: NavHostController, incomeName: String, incomeTypeId: Int) {
     var amount by remember { mutableStateOf("") }
+    val myFont = FontFamily(Font(R.font.ibmplexsansthai_regular))
+
+    val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    val selectedYear = sharedPreferencesManager.selectedYear // ✅ ใช้ SharedPreferencesManager
+    val email = sharedPreferencesManager.userEmail // ✅ ดึง email จาก SharedPreference
 
     Column(
         modifier = Modifier
@@ -131,7 +163,7 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = incomeName,
+            text = "$incomeName (Code: $incomeTypeId)",
             fontSize = 22.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium
@@ -139,7 +171,7 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Input field for entering the amount
+        // ✅ ช่องกรอกจำนวนเงิน
         OutlinedTextField(
             value = amount,
             onValueChange = { amount = it },
@@ -151,12 +183,15 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Button to submit the amount
+        val context = LocalContext.current
         Button(
             onClick = {
-                // Handle submission
-                // You can navigate back or send the value as needed
-                navController.popBackStack()
+                if (amount.isNotEmpty() && email != null) {
+                    val incomeAmount = amount.toDouble()
+                    insertIncome(incomeAmount, incomeTypeId, email, selectedYear, navController, context)
+                } else {
+                    Toast.makeText(context, "กรุณากรอกข้อมูลให้ครบถ้วน", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier
                 .width(160.dp)
@@ -170,13 +205,14 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
                 text = "บันทึก",
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Button to go back without saving
+        // ปุ่มกลับ
         Button(
             onClick = { navController.popBackStack() },
             modifier = Modifier
@@ -191,8 +227,37 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String) {
                 text = "กลับ",
                 color = MaterialTheme.colorScheme.onSecondary,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium.copy(fontFamily = myFont),
             )
         }
     }
+}
+
+// ✅ ฟังก์ชันส่งข้อมูลไปยัง API
+private fun insertIncome(
+    incomebalance: Double,
+    incometype_id: Int,
+    email: String,
+    year: Int,
+    navController: NavHostController,
+    context: Context
+) {
+    val api = IncomeAPI.create()
+    val request = InsertIncomeClass(incomebalance, incometype_id, email, year)
+
+    api.insertIncome(request).enqueue(object : Callback<IncomeResponse> {
+        override fun onResponse(call: Call<IncomeResponse>, response: Response<IncomeResponse>) {
+            if (response.isSuccessful && response.body()?.success == 1) {
+                Toast.makeText(context, "บันทึกข้อมูลสำเร็จ", Toast.LENGTH_SHORT).show()
+                navController.popBackStack()
+            } else {
+                Toast.makeText(context, "เกิดข้อผิดพลาดในการบันทึกข้อมูล", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onFailure(call: Call<IncomeResponse>, t: Throwable) {
+            Toast.makeText(context, "การเชื่อมต่อล้มเหลว: ${t.message}", Toast.LENGTH_SHORT).show()
+        }
+    })
 }
