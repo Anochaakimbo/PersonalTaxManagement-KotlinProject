@@ -44,7 +44,7 @@ fun MyScreen() {
     Scaffold(
         bottomBar = {
             if (isLoggedIn) {
-                MyBottomBar(navController) // ✅ แสดงเฉพาะเมื่อเข้าสู่ระบบแล้ว
+                MyBottomBar(navController, context) // ✅ แสดงเฉพาะเมื่อเข้าสู่ระบบแล้ว
             }
         }
     ) { innerPadding ->

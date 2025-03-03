@@ -121,19 +121,35 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             SSFFundScreen(navController)
         }
 
+
+
         composable(
             route = "Showalldocument_screen"
-        ) {
-            DocumentScreen(navController)
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("user_id")?.toIntOrNull() ?: 1
+            DocumentScreen(navController, userId)
         }
+
         composable(
-            route = Screen.SaveDocument.route
-        ) {
-            UploadDocumentScreen(navController)
+            route = "${Screen.SaveDocument.route}/{selectedYear}"
+        ) { backStackEntry ->
+            val selectedYear = backStackEntry.arguments?.getString("selectedYear")?.toIntOrNull() ?: 2567
+            UploadDocumentScreen(navController = navController, selectedYear = selectedYear)
         }
-        composable("showall_screen") {
-            DocumentScreen(navController = navController)
+
+        composable(
+            route = "showall_screen"
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("user_id")?.toIntOrNull() ?: 1
+            DocumentScreen(navController = navController, userId = userId)
         }
+
+
+        composable("Seedetaildocument_screen/{document_id}") { backStackEntry ->
+            val documentId = backStackEntry.arguments?.getString("document_id")?.toIntOrNull() ?: 1
+            SeeDocumentScreen(navController = navController, documentId = documentId)
+        }
+
         composable("Seedetaildocument_screen/{document_id}") { backStackEntry ->
             val documentId = backStackEntry.arguments?.getString("document_id")?.toIntOrNull() ?: 1
             SeeDocumentScreen(navController = navController, documentId = documentId)

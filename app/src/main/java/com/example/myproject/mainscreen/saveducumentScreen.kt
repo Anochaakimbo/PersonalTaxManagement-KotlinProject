@@ -26,22 +26,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.myproject.navigation.Screen
 import com.example.myproject.viewmodel.DocumentViewModel
 
 
 @Composable
-fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentViewModel = viewModel()) {
+fun UploadDocumentScreen(
+    navController: NavHostController,
+    viewModel: DocumentViewModel = viewModel(),
+    selectedYear: Int
+) {
     val context = LocalContext.current
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val isLoading by viewModel.isLoading.collectAsState()
-
-
 
     // เปิดแกลเลอรี
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         selectedImageUri = uri
     }
-
 
     Column(
         modifier = Modifier
@@ -58,7 +60,6 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
 
-
             Text(
                 text = "เก็บเอกสาร",
                 fontSize = 24.sp,
@@ -67,17 +68,14 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
                 modifier = Modifier.weight(1f)
             )
 
-
             OutlinedButton(onClick = { /* เปิดหน้าข้อมูลผู้ใช้ */ }, shape = RoundedCornerShape(12.dp)) {
-                Text("2568")
+                Text(selectedYear.toString()) // แสดงปีที่เลือก
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(imageVector = Icons.Default.Person, contentDescription = "โปรไฟล์")
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
-
 
         // **Frame อัปโหลดรูป**
         Card(
@@ -118,9 +116,7 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
-
 
         // **ปุ่มบันทึกและยกเลิก**
         Row(
@@ -130,10 +126,12 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
             Button(
                 onClick = {
                     selectedImageUri?.let { uri ->
-                        viewModel.uploadFile(context, 1, uri) // userId = 1
+                        viewModel.uploadFile(context, 1, uri, selectedYear)
                     }
-                    // ✅ เปลี่ยนหน้าไป ShowAllDocumentScreen ทันทีหลังจากกด
-                    navController.navigate("ShowAllDocument_Screen")
+                    // นำทางกลับไปยังหน้า Showalldocument พร้อมล้าง back stack
+                    navController.navigate(Screen.Showalldocument.route) {
+                        popUpTo(Screen.Showalldocument.route) { inclusive = true }
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF008000)),
                 shape = RoundedCornerShape(20.dp),
@@ -142,9 +140,6 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
             ) {
                 Text("บันทึก", color = Color.Black)
             }
-
-
-
 
             Button(
                 onClick = { navController.popBackStack() },
@@ -155,7 +150,6 @@ fun UploadDocumentScreen(navController: NavHostController, viewModel: DocumentVi
                 Text("ยกเลิก", color = Color.Black)
             }
         }
-
 
         // **Loading Indicator**
         if (isLoading) {

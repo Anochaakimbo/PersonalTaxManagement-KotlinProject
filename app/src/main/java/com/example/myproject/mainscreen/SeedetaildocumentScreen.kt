@@ -1,28 +1,27 @@
 package com.example.savedocument
 
-import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.myproject.viewmodel.DocumentViewModel
 
 @Composable
@@ -30,14 +29,39 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
     var showDialog by remember { mutableStateOf(false) }
     val documents by viewModel.documents.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val context = LocalContext.current
 
+    // Fixed: Use a specific document state instead of relying on filtering from documents list
+    val document = remember { mutableStateOf<com.example.myproject.api.DocumentItem?>(null) }
+
+    // Fetch document data when the screen launches
     LaunchedEffect(documentId) {
+        Log.d("SeeDocumentScreen", "Fetching document with ID: $documentId")
         viewModel.fetchDocumentsById(documentId)
     }
 
-    val document = documents.find { it.id == documentId }
-    val imageUrl = "http://10.0.2.2:3000${document?.document_url}"
-    Log.d("SeeDocumentScreen", "Document URL: ${document?.document_url}")
+    // Update the document state when documents change
+    LaunchedEffect(documents) {
+        document.value = documents.find { it.id == documentId }
+        Log.d("SeeDocumentScreen", "Documents updated, found document: ${document.value}")
+    }
+
+    // Properly construct the image URL with necessary fixes
+    val imageUrl = document.value?.document_url?.let { url ->
+        if (!url.startsWith("http")) {
+            // Make sure the URL is properly formed
+            if (!url.startsWith("/")) {
+                "http://10.0.2.2:3000/$url"
+            } else {
+                "http://10.0.2.2:3000$url"
+            }
+        } else {
+            url
+        }
+    } ?: ""
+
+    Log.d("SeeDocumentScreen", "Document: ${document.value}")
+    Log.d("SeeDocumentScreen", "Image URL: $imageUrl")
 
     Column(
         modifier = Modifier
@@ -46,7 +70,7 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 🔹 Header
+        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -65,37 +89,80 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 🔹 Loading / Image Display
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(450.dp)
-                    .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                if (imageUrl.isNotEmpty()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(imageUrl),
-                        contentDescription = "รูปภาพของ Document $documentId",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Text("ไม่มีรูปภาพ", fontSize = 16.sp, color = Color.DarkGray)
+        // Loading / Image Display
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(450.dp)
+                .background(Color.LightGray, shape = RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else if (imageUrl.isNotEmpty()) {
+                // Fixed: Enhanced image loading with better error handling
+                val painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(context)
+                        .data(imageUrl)
+                        .crossfade(true)
+                        .build()
+                )
+
+                val imageState = painter.state
+
+                when (imageState) {
+                    is AsyncImagePainter.State.Loading -> {
+                        CircularProgressIndicator()
+                    }
+                    is AsyncImagePainter.State.Error -> {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                "ไม่สามารถโหลดรูปภาพได้",
+                                fontSize = 16.sp,
+                                color = Color.Red
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "URL: $imageUrl",
+                                fontSize = 12.sp,
+                                color = Color.DarkGray
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Error: ${(imageState as? AsyncImagePainter.State.Error)?.result?.throwable?.message}",
+                                fontSize = 12.sp,
+                                color = Color.Red
+                            )
+                        }
+                    }
+                    is AsyncImagePainter.State.Success -> {
+                        Image(
+                            painter = painter,
+                            contentDescription = "รูปภาพของ Document $documentId",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                    else -> {
+                        Text("กำลังเตรียมรูปภาพ...", fontSize = 16.sp, color = Color.DarkGray)
+                    }
                 }
+            } else {
+                Text("ไม่พบรูปภาพ", fontSize = 16.sp, color = Color.DarkGray)
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 🔹 ปุ่มลบ + ปุ่มเสร็จสิ้น
+        // Buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            // 🔥 ปุ่มลบ (แสดง Dialog ก่อนลบ)
+            // Delete button
             Button(
                 onClick = { showDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
@@ -105,7 +172,7 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
                 Text("ลบ", color = Color.Black)
             }
 
-            // ✅ ปุ่มเสร็จสิ้น
+            // Done button
             Button(
                 onClick = { navController.popBackStack() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C99D)),
@@ -117,7 +184,7 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
         }
     }
 
-    // 🔹 Dialog ยืนยันก่อนลบ
+    // Confirmation dialog
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -126,9 +193,9 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteFile(userId = 1, fileId = documentId) // ลบไฟล์
+                        viewModel.deleteFile(userId = 1, fileId = documentId)
                         showDialog = false
-                        navController.popBackStack() // กลับไปหน้าก่อน
+                        navController.popBackStack()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
