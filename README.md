@@ -1,3 +1,4 @@
+```
 app.put('/updateTaxDeduction/:id', function (req, res) {
     let taxdeduction_id = req.params.id;
     let { taxdeductiontype_balance, taxdeductiontype_id, user_id, year } = req.body;
@@ -20,3 +21,4 @@ app.put('/updateTaxDeduction/:id', function (req, res) {
         return res.send({ success: 1, message: "Tax deduction updated successfully." });
     });
 });
+```
