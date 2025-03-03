@@ -1,8 +1,11 @@
 package com.example.myproject.database
 
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class AllTaxDeductionClass(
     @Expose
     @SerializedName("id") val id:Int,
@@ -17,5 +20,4 @@ data class AllTaxDeductionClass(
     @SerializedName("year")val year: String,
 
     @Expose
-    @SerializedName("taxdeductiontype_name")val taxdeductiontype_name:String,
-)
+    @SerializedName("taxdeductiontype_id")val taxdeductiontype_id:String):Parcelable{}

@@ -43,4 +43,7 @@ sealed class Screen(val route: String, val name: String, @DrawableRes val icon: 
     data object HealthInsurance : Screen(route = "health_insurance_screen", name = "Health Insurance", icon = R.drawable.ic_health)
     data object RMFFund : Screen(route = "rmf_fund_screen", name = "RMF Fund", icon = R.drawable.ic_rmf)
     data object SSFFund : Screen(route = "ssf_fund_screen", name = "SSF Fund", icon = R.drawable.ic_ssf)
+
+    data object EditIncome : Screen(route = "editincome_screen", name = "EditIncome", icon = R.drawable.menu)
+    data object EditTaxDeduc : Screen(route = "editTaxDeduc_screen", name="EditTax" , icon = R.drawable.menu )
 }

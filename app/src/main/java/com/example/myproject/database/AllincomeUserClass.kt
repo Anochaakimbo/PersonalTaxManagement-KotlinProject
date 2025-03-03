@@ -1,8 +1,11 @@
 package com.example.myproject.database
 
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class AllincomeUserClass(
     @Expose
     @SerializedName("id") val id:Int,
@@ -17,5 +20,4 @@ data class AllincomeUserClass(
     @SerializedName("year")val year: String,
 
     @Expose
-    @SerializedName("incometype_name")val incometype_name:String,
-)
+    @SerializedName("incometype_id")val incometype_id:String): Parcelable {}
