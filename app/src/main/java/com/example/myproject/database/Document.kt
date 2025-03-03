@@ -25,5 +25,5 @@ data class Document(
     @SerializedName("uploaded_at") val uploadedAt: String,
 
     @Expose
-    @SerializedName("year") val year: String? = null // เพิ่มฟิลด์ year ที่รับค่าจาก API
+    @SerializedName("year") val year: Int? = null // เพิ่มฟิลด์ year ที่รับค่าจาก API
 ) : Parcelable

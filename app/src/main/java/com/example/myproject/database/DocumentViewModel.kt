@@ -1,5 +1,3 @@
-
-
 package com.example.myproject.viewmodel
 
 import android.content.Context
@@ -9,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myproject.api.DocumentAPI
 import com.example.myproject.database.Document
+
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -208,3 +207,5 @@ class DocumentViewModel : ViewModel() {
         return file
     }
 }
+
+
