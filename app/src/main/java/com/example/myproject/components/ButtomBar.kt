@@ -32,7 +32,7 @@ fun MyBottomBar(navController: NavHostController) {
         Screen.Home,
         Screen.Search,
         Screen.TaxAdd,
-        Screen.Notification,
+        Screen.ShowAllDocument,
         Screen.Profile
     )
     var selectedScreen by remember { mutableIntStateOf(0) }

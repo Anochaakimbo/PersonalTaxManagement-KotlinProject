@@ -1,9 +1,14 @@
 package com.example.myproject.api
 
+
 import com.example.myproject.database.PasswordChangeRequest
+import com.example.myproject.database.ResetPasswordRequest
+import com.example.myproject.database.SendOtpRequest
 import com.example.myproject.database.UploadResponse
 import com.example.myproject.database.UserClass
 import com.example.myproject.database.UserProfileResponse
+import com.example.myproject.database.VerifyOtpRequest
+import com.example.myproject.database.VerifyOtpResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -40,6 +45,15 @@ interface UserAPI {
 
         @GET("getUserProfile/{id}")
         fun getUserProfile(@Path("id") userId: Int): Call<UserProfileResponse>
+
+        @POST("send-otp")
+        fun sendOtp(@Body request: SendOtpRequest): Call<SendOtpRequest>
+
+        @POST("verify-otp")
+        fun verifyOtp(@Body request: VerifyOtpRequest): Call<VerifyOtpResponse>
+
+        @POST("reset-password")
+        fun resetPassword(@Body request: ResetPasswordRequest): Call<ResetPasswordRequest>
 
 
     }
