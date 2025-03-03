@@ -36,6 +36,7 @@ fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
         Screen.TaxAdd.route -> "เพิ่มภาษี"
         Screen.Notification.route -> "การแจ้งเตือน"
         Screen.Profile.route -> "โปรไฟล์"
+        Screen.ShowAllDocument.route ->"เอกสาร"
         else -> "แอปของฉัน" // ค่าเริ่มต้น
     }
 

@@ -1,6 +1,5 @@
 package com.example.myproject.mainscreen
 
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.myproject.navigation.Screen
 import com.example.myproject.viewmodel.DocumentViewModel
-
+import com.example.myproject.loginandsignup.SharedPreferencesManager
 
 @Composable
 fun UploadDocumentScreen(
@@ -37,6 +36,9 @@ fun UploadDocumentScreen(
     selectedYear: Int
 ) {
     val context = LocalContext.current
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    val userId = sharedPreferencesManager.userId ?: 0 // Get userId from SharedPreferences
+
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -126,11 +128,11 @@ fun UploadDocumentScreen(
             Button(
                 onClick = {
                     selectedImageUri?.let { uri ->
-                        viewModel.uploadFile(context, 1, uri, selectedYear)
+                        viewModel.uploadFile(context, userId, uri, selectedYear) // Use userId from SharedPreferences
                     }
                     // นำทางกลับไปยังหน้า Showalldocument พร้อมล้าง back stack
-                    navController.navigate(Screen.Showalldocument.route) {
-                        popUpTo(Screen.Showalldocument.route) { inclusive = true }
+                    navController.navigate(Screen.ShowAllDocument.route) {
+                        popUpTo(Screen.ShowAllDocument.route) { inclusive = true }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF008000)),

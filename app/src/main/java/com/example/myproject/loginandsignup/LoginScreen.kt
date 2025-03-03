@@ -171,7 +171,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                         color = Color(0xFF00C09E),
                         modifier = Modifier
                             .align(Alignment.End)
-                            .clickable { navController.navigate(Screen.Forgetpassword.route) }
+                            .clickable { navController.navigate(Screen.ForgetPassword.route) }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))

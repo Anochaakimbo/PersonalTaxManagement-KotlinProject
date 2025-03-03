@@ -25,6 +25,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.myproject.R
+import com.example.myproject.loginandsignup.SharedPreferencesManager
 import com.example.myproject.viewmodel.DocumentViewModel
 
 @Composable
@@ -34,16 +35,19 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
     val isLoading by viewModel.isLoading.collectAsState()
     val context = LocalContext.current
 
+    // Get userId from SharedPreferences
+    val sharedPreferencesManager = remember { SharedPreferencesManager(context) }
+    val userId = sharedPreferencesManager.userId ?: 0
+
     // ตรวจสอบข้อมูลใน Logcat
     LaunchedEffect(documentId) {
         Log.d("SeeDocumentScreen", "Fetching document with ID: $documentId")
         viewModel.fetchDocumentsById(documentId)
     }
-
     val document = documents.find { it.id == documentId }
 
     // ถ้า URL ไม่มี http:// นำหน้า ให้เพิ่มเข้าไป
-    val imageUrl = document?.document_url?.let { url ->
+    val imageUrl = document?.documentUrl?.let { url ->
         if (!url.startsWith("http")) {
             "http://10.0.2.2:3000$url"
         } else {
@@ -154,7 +158,7 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.deleteFile(userId = 1, fileId = documentId) // ลบไฟล์
+                        viewModel.deleteFile(userId = userId, fileId = documentId) // ใช้ userId จาก SharedPreferences
                         showDialog = false
                         navController.popBackStack() // กลับไปหน้าก่อน
                     },

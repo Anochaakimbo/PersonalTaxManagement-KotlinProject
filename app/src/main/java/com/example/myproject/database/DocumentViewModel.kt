@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myproject.api.DocumentAPI
-import com.example.myproject.api.DocumentItem
+import com.example.myproject.database.Document
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -20,11 +20,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class DocumentViewModel : ViewModel() {
-    private val _documents = MutableStateFlow<List<DocumentItem>>(emptyList())
+    private val _documents = MutableStateFlow<List<Document>>(emptyList())
     private val _selectedYear = MutableStateFlow<Int?>(null)
 
     // ฟังก์ชันสำหรับกรองเอกสารตามปีที่เลือก
-    val documents: StateFlow<List<DocumentItem>> = combine(
+    val documents: StateFlow<List<Document>> = combine(
         _documents,
         _selectedYear
     ) { documents, selectedYear ->

@@ -5,11 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.myproject.loginandsignup.ForgetPasswordScreen
 import com.example.myproject.loginandsignup.LoginScreen
 import com.example.myproject.loginandsignup.RegisterScreen
+import com.example.myproject.loginandsignup.ResetPasswordScreen
 import com.example.myproject.mainscreen.AddDeductionScreen
 import com.example.myproject.mainscreen.AddIncomeScreen
 import com.example.myproject.mainscreen.NotificationScreen
@@ -70,7 +73,7 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             RegisterScreen(navController)
         }
         composable(
-            route = Screen.Forgetpassword.route
+            route = Screen.ForgetPassword.route
         ) {
             ForgetPasswordScreen(navController)
         }
@@ -81,9 +84,8 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         }
         composable(
             route = "Showalldocument_screen"
-        ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("user_id")?.toIntOrNull() ?: 1
-            DocumentScreen(navController, userId)
+        ) {
+            DocumentScreen(navController)
         }
         composable(
             route = Screen.EditProfileScreen.route
@@ -109,6 +111,11 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
             ContactUsScreen(navController)
         }
 
+        composable("Seedetaildocument_screen/{document_id}") { backStackEntry ->
+            val documentId = backStackEntry.arguments?.getString("document_id")?.toIntOrNull() ?: 1
+            SeeDocumentScreen(navController = navController, documentId = documentId)
+        }
+
         composable(
             route = "${Screen.SaveDocument.route}/{selectedYear}"
         ) { backStackEntry ->
@@ -117,14 +124,11 @@ fun NavGraph(navController: NavHostController,modifier: Modifier,onLoginSuccess:
         }
 
         composable(
-            route = "showall_screen"
+            route = Screen.ResetPassword.route,   // 👈 ต้องกำหนด `{email}` ด้วย
+            arguments = listOf(navArgument("email") { type = NavType.StringType })  // รับค่า email
         ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("user_id")?.toIntOrNull() ?: 1
-            DocumentScreen(navController = navController, userId = userId)
-        }
-        composable("Seedetaildocument_screen/{document_id}") { backStackEntry ->
-            val documentId = backStackEntry.arguments?.getString("document_id")?.toIntOrNull() ?: 1
-            SeeDocumentScreen(navController = navController, documentId = documentId)
+            val email = backStackEntry.arguments?.getString("email") ?: ""  // รับค่าจาก URL
+            ResetPasswordScreen(navController, email)  // ส่ง email เข้าไปในหน้า ResetPassword
         }
     }
 }
