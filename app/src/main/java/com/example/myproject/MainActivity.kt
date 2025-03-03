@@ -44,7 +44,7 @@ fun MyScreen() {
     Scaffold(
         bottomBar = {
             if (isLoggedIn) {
-                MyBottomBar(navController, context) // ✅ แสดงเฉพาะเมื่อเข้าสู่ระบบแล้ว
+                MyBottomBar(navController) // ✅ แสดงเฉพาะเมื่อเข้าสู่ระบบแล้ว
             }
         }
     ) { innerPadding ->
@@ -55,8 +55,6 @@ fun MyScreen() {
                 isLoggedIn = true // ✅ อัปเดตสถานะเมื่อเข้าสู่ระบบ
             }
         )
-
     }
-
 }
 

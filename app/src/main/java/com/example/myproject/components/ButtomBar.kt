@@ -1,5 +1,4 @@
 package com.example.myproject.components
-import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +27,7 @@ import com.example.myproject.navigation.Screen
 
 
 @Composable
-fun MyBottomBar(navController: NavHostController, context: Context) {
+fun MyBottomBar(navController: NavHostController) {
     val navigationItems = listOf(
         Screen.Home,
         Screen.Search,

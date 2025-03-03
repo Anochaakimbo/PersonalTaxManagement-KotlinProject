@@ -43,7 +43,7 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
-    val myFont = FontFamily(Font(R.font.khaidao))
+    val myFont = FontFamily(Font(R.font.ibmplexsansthai_regular))
     val createClient = LoginAPI.create()
     val contextForToast = LocalContext.current.applicationContext
     lateinit var sharedPreferences: SharedPreferencesManager
