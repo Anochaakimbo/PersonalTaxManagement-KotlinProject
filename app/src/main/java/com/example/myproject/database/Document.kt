@@ -1,5 +1,7 @@
 package com.example.myproject.database
 
+
+
 import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -23,8 +25,5 @@ data class Document(
     @SerializedName("uploaded_at") val uploadedAt: String,
 
     @Expose
-    @SerializedName("year")val year: Int
+    @SerializedName("year") val year: String? = null // เพิ่มฟิลด์ year ที่รับค่าจาก API
 ) : Parcelable
-
-
-

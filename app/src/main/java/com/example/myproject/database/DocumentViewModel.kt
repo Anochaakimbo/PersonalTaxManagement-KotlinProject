@@ -1,3 +1,5 @@
+
+
 package com.example.myproject.viewmodel
 
 import android.content.Context
@@ -206,6 +208,3 @@ class DocumentViewModel : ViewModel() {
         return file
     }
 }
-
-
-
