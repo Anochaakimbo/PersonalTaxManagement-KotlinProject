@@ -73,13 +73,6 @@ fun SeeDocumentScreen(navController: NavHostController, documentId: Int, viewMod
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "ย้อนกลับ")
             }
-            Text(
-                text = "ดูเอกสารที่: $documentId",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF008000),
-                modifier = Modifier.weight(1f)
-            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
