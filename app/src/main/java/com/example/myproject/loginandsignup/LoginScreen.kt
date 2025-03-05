@@ -191,8 +191,6 @@ fun LoginScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
                                                     sharedPreferences.isLoggedIn = true
                                                     sharedPreferences.userId = response.body()!!.id
                                                     sharedPreferences.userEmail = email
-
-                                                    Toast.makeText(contextForToast, "Login successful : ${response.body()!!.id}", Toast.LENGTH_LONG).show()
                                                     onLoginSuccess()
                                                     navController.navigate(Screen.Home.route)
                                                 }

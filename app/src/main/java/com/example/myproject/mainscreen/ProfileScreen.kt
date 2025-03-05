@@ -368,7 +368,7 @@ fun uploadProfileImage(context: Context, userId: Int, imageUri: Uri, onUploadSuc
                     }
                 })
             } else {
-                Toast.makeText(context, "อัปโหลดล้มเหลว: ${response.message()}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, " ${response.message()}", Toast.LENGTH_SHORT).show()
             }
         }
 
