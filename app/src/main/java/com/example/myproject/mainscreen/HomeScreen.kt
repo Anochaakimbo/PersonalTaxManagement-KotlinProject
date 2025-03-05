@@ -409,7 +409,7 @@ fun IncomeInfoCard(
                 errorMessage != null -> Text(text = errorMessage, color = Color.Red, fontSize = 14.sp)
                 else -> {
                     val totalIncome = updatedIncomeList.sumOf { it.incomebalance }
-                    Text(text = "$totalIncome บาท", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(text = "${String.format("%,d", totalIncome)} บาท", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     Text(text = "จำนวน ${updatedIncomeList.size} รายการ", fontSize = 14.sp, color = Color.Gray)
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -441,7 +441,7 @@ fun IncomeInfoCard(
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "${income.incomebalance} บาท",
+                                            text = "${String.format("%,d", income.incomebalance)} บาท",
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -516,7 +516,7 @@ fun IncomeInfoCard(
                                                                         response: Response<AllincomeUserClass>
                                                                     ) {
                                                                         if (response.isSuccessful) {
-                                                                            updatedIncomeList = updatedIncomeList.filter { it.id != deleteIncomeId }
+                                                                            updatedIncomeList = updatedIncomeList.filter { it.id !== deleteIncomeId }
                                                                             Toast.makeText(context, "ลบรายการสำเร็จ", Toast.LENGTH_SHORT).show()
                                                                         } else {
                                                                             Toast.makeText(context, "ไม่สามารถลบรายการได้: รหัสข้อผิดพลาด ${response.code()}", Toast.LENGTH_SHORT).show()

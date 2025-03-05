@@ -58,36 +58,10 @@ fun TaxSavingScreen(navController: NavHostController) {
                 .verticalScroll(scrollState)
                 .background(Color(0xFFEAFBF1))
         ) {
-            HeaderSection()
             Spacer(modifier = Modifier.height(16.dp))
             TaxSavingProducts(navController = navController) // สร้าง component สำหรับแสดง product options
             Spacer(modifier = Modifier.height(16.dp))
             RecommendationsSection() // แนะนำผลิตภัณฑ์
-        }
-    }
-}
-
-@Composable
-fun HeaderSection() {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF3DDC84)),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "แนะนำลดหย่อนภาษี",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Text(
-                text = "เลือกทางถูกต้อง ด้วยตัวเลือกเหล่านี้",
-                fontSize = 14.sp,
-                color = Color.White
-            )
         }
     }
 }
