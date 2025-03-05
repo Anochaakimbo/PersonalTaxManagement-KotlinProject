@@ -163,7 +163,7 @@ fun IncomeDetailsScreen(navController: NavHostController, incomeName: String, in
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "$incomeName (Code: $incomeTypeId)",
+            text = "$incomeName",
             fontSize = 22.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium

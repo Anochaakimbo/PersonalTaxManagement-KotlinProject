@@ -160,7 +160,7 @@ fun RegisterScreen(navController: NavHostController) {
                             email = it
                             isError = false
                         },
-                        label = { Text("อีเมลล์") },
+                        label = { Text("อีเมล") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
