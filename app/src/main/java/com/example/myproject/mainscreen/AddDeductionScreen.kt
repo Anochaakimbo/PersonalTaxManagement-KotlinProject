@@ -149,6 +149,19 @@ fun DeductionDetailsScreen(navController: NavHostController, deductionName: Stri
     val selectedYear = sharedPreferencesManager.selectedYear
     val email = sharedPreferencesManager.userEmail
 
+    // Define deduction limits (for display purposes only)
+    val deductionLimits = mapOf(
+        "ประกันสังคม" to 9000.0,
+        "Easy E-Receipt" to 50000.0,
+        "ดอกเบี้ยที่บ้าน" to 100000.0,
+        "ประกันชีวิตทั่วไป" to 100000.0,
+        "Thai ESG" to 210000.0
+    )
+
+    // แปลงค่า amount เป็นตัวเลข ถ้าไม่สามารถแปลงได้ให้เป็น 0
+    val enteredAmount = amount.toDoubleOrNull() ?: 0.0
+    val limit = deductionLimits[deductionName] ?: 0.0
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -165,18 +178,40 @@ fun DeductionDetailsScreen(navController: NavHostController, deductionName: Stri
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        val formattedEnteredAmount = String.format("%,d", enteredAmount.toInt())
+        val formattedLimit = String.format("%,d", limit.toInt())
+
         Text(
-            text = "$deductionName (Code: $deductionTypeId)",
+            text = "$deductionName",
             fontSize = 22.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "ซื้อไป: $formattedEnteredAmount บาท",
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text = "ใช้สิทธิ์ลดหย่อนได้สูงสุด: $formattedLimit บาท",
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.secondary,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = amount,
-            onValueChange = { amount = it },
+            onValueChange = {
+                // Limit input to numbers only
+                amount = it.filter { char -> char.isDigit() }
+            },
             label = { Text("จำนวนเงินค่าลดหย่อน") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
@@ -188,8 +223,7 @@ fun DeductionDetailsScreen(navController: NavHostController, deductionName: Stri
         Button(
             onClick = {
                 if (amount.isNotEmpty() && email != null) {
-                    val taxDeductionAmount = amount.toDouble()
-                    insertTaxDeduction(taxDeductionAmount, deductionTypeId, email, selectedYear, navController, context)
+                    insertTaxDeduction(enteredAmount, deductionTypeId, email, selectedYear, navController, context)
                 } else {
                     Toast.makeText(context, "กรุณากรอกข้อมูลให้ครบถ้วน", Toast.LENGTH_SHORT).show()
                 }
@@ -229,6 +263,8 @@ fun DeductionDetailsScreen(navController: NavHostController, deductionName: Stri
         }
     }
 }
+
+
 
 private fun insertTaxDeduction(
     taxDeductionAmount: Double,

@@ -50,6 +50,8 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.NumberFormat
+import java.util.Locale
 
 
 val incomeTypeMap = mapOf(
@@ -229,9 +231,8 @@ fun HomeScreen(navController: NavHostController) {
 
             item {
                 val totalIncome = incomeList.filter { it.year == selectedYear.toString() && it.user_id == userId }.sumOf { it.incomebalance }
-                val totalDeduction = taxDeductionList.filter { it.year == selectedYear.toString() && it.user_id == userId }.sumOf { it.taxdeductiontype_balance }
-                val taxAmount = calculateTax(totalIncome, totalDeduction)
-
+                val filteredTaxDeductionList = taxDeductionList.filter { it.year == selectedYear.toString() && it.user_id == userId }
+                val taxAmount = calculateTax(totalIncome, filteredTaxDeductionList)
 
                 // กล่อง "เริ่มคำนวณภาษี"
                 Box(
@@ -319,32 +320,58 @@ fun HomeScreen(navController: NavHostController) {
     }
 }
 
-private fun calculateTax(totalIncome: Int, totalDeduction: Int): Double {
+private fun calculateTax(totalIncome: Int, taxDeductionList: List<AllTaxDeductionClass>): Double {
     // 1. คำนวณค่าใช้จ่ายเหมา (ประมาณการ 50% แต่ไม่เกิน 100,000 บาท)
     val standardExpense = minOf(totalIncome * 0.5, 100000.0).toInt()
+
     // 2. หักค่าใช้จ่ายเหมา
     val incomeAfterExpense = totalIncome - standardExpense
-    // 3. หักค่าลดหย่อนทั้งหมด (ค่าลดหย่อนที่ผู้ใช้ป้อน + ค่าลดหย่อนส่วนตัว)
+
+    // 3. กำหนดค่าลดหย่อนสูงสุดตามประเภท
+    val maxDeductionMap = mapOf(
+        "1" to 9000,
+        "2" to 50000,
+        "3" to 100000,
+        "4" to 100000,
+        "5" to 144000,
+        "6" to 300000
+    )
+
+    // 4. คำนวณค่าลดหย่อนรวม โดยใช้ค่าที่ผู้ใช้กรอก แต่ไม่เกินค่าสูงสุดที่กำหนด
+    var totalDeduction = 0
+    taxDeductionList.forEach { taxDeduction ->
+        val maxAllowed = maxDeductionMap[taxDeduction.taxdeductiontype_id] ?: Int.MAX_VALUE
+        val actualDeduction = minOf(taxDeduction.taxdeductiontype_balance, maxAllowed)
+        totalDeduction += actualDeduction
+    }
+
+    // 5. หักค่าลดหย่อนทั้งหมด (ค่าลดหย่อนที่คำนวณแล้ว + ค่าลดหย่อนส่วนตัว)
     val personalDeduction = 60000 // ค่าลดหย่อนส่วนตัว
     val totalAllDeductions = totalDeduction + personalDeduction
-    // 4. คำนวณเงินได้สุทธิ
+
+    // 6. คำนวณเงินได้สุทธิ
     val netTaxableIncome = maxOf(0, incomeAfterExpense - totalAllDeductions)
-    // 5. คำนวณภาษีแบบขั้นบันได
+
+    // 7. คำนวณภาษีแบบขั้นบันได
     var tax = 0.0
+
     // ช่วงที่ 0%
     if (netTaxableIncome <= 150000) {
         return 0.0
     }
+
     // ช่วงที่ 5%
     if (netTaxableIncome > 150000) {
         val taxableAmount = minOf(netTaxableIncome, 300000) - 150000
         tax += taxableAmount * 0.05
     }
+
     // ช่วงที่ 10%
     if (netTaxableIncome > 300000) {
         val taxableAmount = minOf(netTaxableIncome, 500000) - 300000
         tax += taxableAmount * 0.10
     }
+
     // ช่วงที่ 15%
     if (netTaxableIncome > 500000) {
         val taxableAmount = minOf(netTaxableIncome, 750000) - 500000
@@ -374,6 +401,7 @@ private fun calculateTax(totalIncome: Int, totalDeduction: Int): Double {
         val taxableAmount = netTaxableIncome - 5000000
         tax += taxableAmount * 0.35
     }
+
     return tax
 }
 
@@ -593,6 +621,16 @@ fun TaxDeductionInfoCard(
     var updatedTaxDeductionList by remember(taxDeductionList) { mutableStateOf(taxDeductionList) }
     var isDeleting by remember { mutableStateOf(false) }
 
+    // Map of maximum deduction values for each tax deduction type
+    val maxDeductionMap = mapOf(
+        "1" to 9000,
+        "2" to 50000,
+        "3" to 100000,
+        "4" to 100000,
+        "5" to 144000,
+        "6" to 300000
+    )
+
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE1F5FE)),
@@ -611,7 +649,7 @@ fun TaxDeductionInfoCard(
                 errorMessage != null -> Text(text = errorMessage, color = Color.Red, fontSize = 14.sp)
                 else -> {
                     val totalTaxDeduction = updatedTaxDeductionList.sumOf { it.taxdeductiontype_balance }
-                    Text(text = "$totalTaxDeduction บาท", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(text = "${String.format("%,d", totalTaxDeduction)} บาท", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                     Text(text = "จำนวน ${updatedTaxDeductionList.size} รายการ", fontSize = 14.sp, color = Color.Gray)
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -622,6 +660,8 @@ fun TaxDeductionInfoCard(
                     ) {
                         updatedTaxDeductionList.forEach { taxDeduction ->
                             val taxDeductionTypeName = taxDeductionTypeMap[taxDeduction.taxdeductiontype_id] ?: "ไม่ทราบประเภท"
+                            val maxDeduction = maxDeductionMap[taxDeduction.taxdeductiontype_id] ?: Int.MAX_VALUE
+                            val isExceedingMax = taxDeduction.taxdeductiontype_balance > maxDeduction
                             var deleteDialog by remember { mutableStateOf(false) }
                             var deleteTaxId by remember { mutableStateOf(0) }
 
@@ -641,11 +681,25 @@ fun TaxDeductionInfoCard(
                                             color = Color(0xFF00695C)
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
+
+                                        // แสดงจำนวนเงินลดหย่อน (แสดงเป็นสีแดงถ้าเกินค่าสูงสุด)
                                         Text(
-                                            text = "${taxDeduction.taxdeductiontype_balance} บาท",
+
+                                            text = "${String.format("%,d",taxDeduction.taxdeductiontype_balance)} บาท",
                                             fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isExceedingMax) Color.Red else Color.Black
                                         )
+
+                                        // แสดงข้อความเตือนถ้าเกินค่าสูงสุด
+                                        if (isExceedingMax) {
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "ใช้สิทธิ์ลดหย่อนได้สูงสุด  ${String.format("%,d",maxDeduction)} บาท",
+                                                fontSize = 12.sp,
+                                                color = Color.Red
+                                            )
+                                        }
                                     }
 
                                     // ปุ่ม แก้ไข และ ลบ
@@ -653,7 +707,7 @@ fun TaxDeductionInfoCard(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.End
                                     ) {
-                                        // ปุ่มแก้ไข  ยังไม่ได้ทำฟังก์ชัน update เบย
+                                        // ปุ่มแก้ไข
                                         OutlinedButton(
                                             onClick = {
                                                 navController.currentBackStackEntry?.savedStateHandle?.set(
